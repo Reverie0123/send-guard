@@ -3,6 +3,7 @@ import {
   categoryLabel,
   getAlertLevel,
   getRiskSummary,
+  localGate,
   MAX_TEXT_LENGTH,
   providerNote,
   riskBand,
@@ -183,7 +184,7 @@ async function requestAnalysis(text: string): Promise<Outcome | null> {
 
 let checkSeq = 0
 
-/** 完整检查流程：敏感字段 → 自定义敏感词 → 20 字过滤 → 缓存 → 请求 */
+/** 完整检查流程：敏感字段 → 自定义敏感词 → 本地预筛 → 缓存 → 请求 */
 async function check(el: HTMLElement): Promise<Outcome | null> {
   const seq = ++checkSeq
   if (isSensitiveField(el)) return { kind: "pass", reason: "sensitive-field" }
@@ -194,7 +195,9 @@ async function check(el: HTMLElement): Promise<Outcome | null> {
   const words = matchSensitiveWords(text)
   if (words.length) return { kind: "words", words } // 本地命中，不发任何请求
 
-  if ([...text].length < 20) return { kind: "pass", reason: "short" }
+  // 客套短回复、不涉及他人的短句不上传；≥20 字或短句里出现指人 / 敏感事件 / 号码才检查
+  const gate = localGate(text)
+  if (!gate.check) return { kind: "pass", reason: "short" }
 
   const key = `${await sha256(text)}|${config?.recipientContext ?? ""}|${config?.rulesVersion ?? 0}`
   if (seq !== checkSeq) return null
@@ -461,7 +464,7 @@ function buildPanel(o: Outcome, mode: PanelMode): HTMLElement {
     panel.append(h("div", { class: "head none", text: "未检查" }))
     panel.append(h("div", {
       class: "summary",
-      text: o.reason === "short" ? "内容少于 20 字，未上传检查。" : o.reason === "empty" ? "输入框为空。" : "敏感字段（密码 / 支付 / 登录表单），不做处理。"
+      text: o.reason === "short" ? "内容较短且未涉及他人或敏感信息，未上传检查。" : o.reason === "empty" ? "输入框为空。" : "敏感字段（密码 / 支付 / 登录表单），不做处理。"
     }))
   }
 

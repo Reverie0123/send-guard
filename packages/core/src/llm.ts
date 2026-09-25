@@ -78,6 +78,10 @@ export function buildLlmPrompt(): string {
     levels,
     "",
     "Calibrate honestly: ordinary messages about the sender's own life or routine work should get low values.",
+    "Sarcasm, irony, mock congratulations, nicknames in quotes and vague references (\"someone\", \"that person\") still count:",
+    "judge the private fact being implied (e.g. a failed exam, a breakup, a layoff) and whether the audience can tell who it is.",
+    "Group chats and channels widen the audience and raise the risk; saying something to the person it is about does not disclose it to anyone else.",
+    "Good news or neutral work facts about others are usually fine.",
     "Output only a json object, no explanation. Example json output:",
     '{"third_party": 0.12, "identity_linkable": 0.05, "sensitive_category": "none", "review_worthiness": 0.3}'
   ].join("\n")

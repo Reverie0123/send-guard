@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Send Guard",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "发送按钮前的语义隐私防火墙：只在值得复核时提醒，不阻止发送。",
   "minimum_chrome_version": "102",
   "permissions": [

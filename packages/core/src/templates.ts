@@ -11,7 +11,8 @@ export const CATEGORY_LABELS: Record<string, string> = {
   none: ""
 }
 
-type RiskInput = Pick<JevResultPublic, "thirdParty" | "identityLinkable" | "sensitiveCategory" | "reviewWorthiness">
+type RiskInput = Pick<JevResultPublic, "thirdParty" | "identityLinkable" | "sensitiveCategory" | "reviewWorthiness"> &
+  Partial<Pick<JevResultPublic, "source">>
 
 export function categoryLabel(category: string): string {
   if (category === "none") return "无"
@@ -39,11 +40,35 @@ function riskLines(result: RiskInput): string[] {
 }
 
 export function getRiskSummary(result: RiskInput): string {
+  if (isLlmSource(result) && getAlertLevel(result) === "none") return "未检测到明显风险"
   return riskLines(result).join("；") || "未检测到明显风险"
 }
 
-/** 摘要里有任何一条风险 → warn；满足红色条件 → red；否则 none（图标消失、直接放行）。 */
+/**
+ * 通用大模型（DeepSeek / OpenRouter）的判定阈值。
+ * 2026-09-25 用 58 条中文样本在 deepseek-flash 上校准：模型只要提到别人就把 thirdParty 打到 0.85+，
+ * 连「恭喜张伟升职」都会触发；而 reviewWorthiness 能干净地分开两组——
+ * 该提醒的全部 ≥ 2.5，不该提醒 / 多余提醒的全部 ≤ 2.0。所以只用 reviewWorthiness 触发。
+ * 另用 20 条未参与调参的样本验证：该提醒的最低 2.2，不该提醒的最高 0.4；阈值取两组之间的 2.1（漏报比多提醒更糟）。
+ */
+export const LLM_WARN_REVIEW = 2.1
+export const LLM_RED_REVIEW = 2.8
+
+function isLlmSource(result: RiskInput): boolean {
+  return result.source === "deepseek" || result.source === "openrouter"
+}
+
+/**
+ * Jev（校准概率）：摘要里有任何一条风险 → warn；满足红色条件 → red；否则 none（图标消失、直接放行）。
+ * 通用大模型：只看 reviewWorthiness，见上方校准说明。
+ */
 export function getAlertLevel(result: RiskInput): AlertLevel {
+  if (isLlmSource(result)) {
+    const rw = result.reviewWorthiness
+    if (rw >= LLM_RED_REVIEW || (rw >= LLM_WARN_REVIEW && result.thirdParty >= 0.85 && result.identityLinkable >= 0.8))
+      return "red"
+    return rw >= LLM_WARN_REVIEW ? "warn" : "none"
+  }
   if ((result.thirdParty >= 0.85 && result.identityLinkable >= 0.8) || result.reviewWorthiness >= 2.8)
     return "red"
   return riskLines(result).length > 0 ? "warn" : "none"
