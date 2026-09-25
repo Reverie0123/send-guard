@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+  .discord { position: absolute; inset: 0; background: #313338; color: #dbdee1; display: flex; }
+  .servers { width: 64px; background: #1e1f22; padding-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .servers b { width: 44px; height: 44px; border-radius: 16px; background: #5865f2; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
+  .servers b.o { background: #3ba55c; border-radius: 22px; }
+  .channels { width: 200px; background: #2b2d31; padding: 16px 10px; font-size: 14px; }
+  .channels .t { font-weight: 700; color: #f2f3f5; margin-bottom: 14px; }
+  .channels div { padding: 6px 8px; border-radius: 4px; color: #949ba4; }
+  .channels .on { background: #404249; color: #f2f3f5; }
+  .chat { flex: 1; display: flex; flex-direction: column; }
+  .chat .top { height: 48px; border-bottom: 1px solid #1f2023; padding: 0 16px; display: flex; align-items: center; font-weight: 600; color: #f2f3f5; }
+  .msgs { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; justify-content: flex-end; gap: 16px; font-size: 15px; }
+  .msg b { color: #f2f3f5; margin-right: 8px; }
+  .msg span { color: #949ba4; font-size: 12px; }
+  .input { margin: 0 16px 20px; background: #383a40; border-radius: 8px; padding: 12px 44px 12px 16px; font-size: 15px; color: #f2f3f5; position: relative; }
+</style></head>
+<body>
+  <div class="caption">
+    <img src="../../packages/extension/icons/icon.svg" alt="">
+    <h1>发出去之前，<br>先看一眼</h1>
+    <p>在群里随口一句，可能就把别人不愿公开的事告诉了一群人。Send Guard 在你按下发送时检查，只在值得复核时提醒。</p>
+  </div>
+  <div class="stage">
+    <div class="discord">
+      <div class="servers"><b>班</b><b class="o">友</b><b>工</b></div>
+      <div class="channels"><div class="t">高三（2）班</div><div class="on"># 班级群</div><div># 作业</div><div># 闲聊</div></div>
+      <div class="chat">
+        <div class="top"># 班级群</div>
+        <div class="msgs">
+          <div class="msg"><b>小周</b><span>今天 20:31</span><div>成绩出来了没</div></div>
+          <div class="msg"><b>阿宁</b><span>今天 20:32</span><div>出来了，这次平均分涨了</div></div>
+        </div>
+        <div class="input">咱们班那位'学霸'这次终于不用补考了，恭喜恭喜
+          <div class="icon" style="right:10px; top:10px">⚠️</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="right:34px; bottom:84px">
+      <div class="head warn">⚠️  发送前注意</div>
+      <div class="rows">
+        <div class="row"><span class="label">第三方隐私</span><span class="val"><span class="band" style="color:#e53e3e">HIGH</span>0.85</span></div>
+        <div class="row"><span class="label">身份可链接</span><span class="val"><span class="band" style="color:#dd6b20">MED</span>0.70</span></div>
+        <div class="row"><span class="label">敏感类别</span><span class="val">职业信息</span></div>
+        <div class="row"><span class="label">复核建议</span><span class="val"><span class="bar"><i style="background:#4a5568"></i><i style="background:#4a5568"></i><i style="background:linear-gradient(90deg,#4a5568 20%,#e2e8f0 20%)"></i></span>2.2/3</span></div>
+        <div class="row"><span class="label">发送对象</span><span class="val">群聊 / 多个收件人（人数未知）</span></div>
+      </div>
+      <div class="summary">可能包含第三方隐私信息；涉及职业信息相关内容。</div>
+      <div class="actions"><span>仍然发送</span><span class="primary">我再看看</span></div>
+    </div>
+  </div>
+</body>
+</html>

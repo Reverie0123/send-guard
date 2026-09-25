@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+  .mail { position: absolute; inset: 0; background: #f6f8fc; }
+  .bar-top { height: 60px; display: flex; align-items: center; padding: 0 20px; font-size: 20px; color: #444; gap: 10px; }
+  .bar-top b { color: #ea4335; }
+  .list { position: absolute; left: 20px; top: 70px; right: 20px; bottom: 20px; background: #fff; border-radius: 16px; }
+  .list div { height: 44px; border-bottom: 1px solid #f1f3f4; margin: 0 16px; }
+  .compose { position: absolute; right: 30px; bottom: 0; width: 520px; height: 520px; background: #fff; border-radius: 10px 10px 0 0; box-shadow: 0 8px 30px rgba(0,0,0,.25); display: flex; flex-direction: column; font-size: 14px; color: #202124; }
+  .compose .h { background: #f2f6fc; padding: 10px 16px; border-radius: 10px 10px 0 0; font-weight: 600; }
+  .field { padding: 8px 16px; border-bottom: 1px solid #f1f3f4; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; color: #5f6368; }
+  .chip { background: #e8eaed; border-radius: 12px; padding: 2px 10px; color: #202124; font-size: 13px; }
+  .body { flex: 1; padding: 12px 16px; line-height: 1.7; position: relative; }
+  .foot { padding: 12px 16px; }
+  .send { display: inline-block; background: #0b57d0; color: #fff; border-radius: 18px; padding: 8px 22px; font-weight: 600; }
+</style></head>
+<body>
+  <div class="caption">
+    <img src="../../packages/extension/icons/icon.svg" alt="">
+    <h1>邮件也一样</h1>
+    <p>在 Gmail 点「发送」或按 Ctrl+Enter 时检查。你始终可以选择「仍然发送」，它从不阻止你。</p>
+  </div>
+  <div class="stage">
+    <div class="mail">
+      <div class="bar-top"><b>M</b> Gmail</div>
+      <div class="list"><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      <div class="compose">
+        <div class="h">新邮件</div>
+        <div class="field">收件人 <span class="chip">项目组 A</span><span class="chip">王工</span><span class="chip">赵经理</span></div>
+        <div class="field">主题：周四评审会安排</div>
+        <div class="body">各位好，周四的评审会照常进行。<br>另外客户李先生最近在做化疗，下周的会他可能来不了，我们先按原计划准备。
+          <div class="icon red" style="right:12px; top:10px">🔴</div>
+        </div>
+        <div class="foot"><span class="send">发送</span></div>
+      </div>
+    </div>
+    <div class="panel" style="left:24px; bottom:150px">
+      <div class="head red">🔴  发送前注意</div>
+      <div class="rows">
+        <div class="row"><span class="label">第三方隐私</span><span class="val"><span class="band" style="color:#e53e3e">HIGH</span>0.95</span></div>
+        <div class="row"><span class="label">身份可链接</span><span class="val"><span class="band" style="color:#e53e3e">HIGH</span>0.90</span></div>
+        <div class="row"><span class="label">敏感类别</span><span class="val">健康医疗</span></div>
+        <div class="row"><span class="label">复核建议</span><span class="val"><span class="bar"><i style="background:#4a5568"></i><i style="background:#4a5568"></i><i style="background:#4a5568"></i></span>3.0/3</span></div>
+        <div class="row"><span class="label">发送对象</span><span class="val">群聊 / 多个收件人（约 2–10 人）</span></div>
+      </div>
+      <div class="summary">可能包含第三方隐私信息；内容可能帮助收件人识别具体人物；涉及健康医疗相关内容；建议发送前再检查一遍。</div>
+      <div class="actions"><span>仍然发送</span><span class="primary">我再看看</span></div>
+    </div>
+  </div>
+</body>
+</html>

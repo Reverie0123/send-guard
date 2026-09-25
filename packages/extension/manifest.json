@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Send Guard",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "发送按钮前的语义隐私防火墙：只在值得复核时提醒，不阻止发送。",
+  "homepage_url": "https://reverie0123.github.io/send-guard/",
   "minimum_chrome_version": "102",
   "permissions": [
     "storage",

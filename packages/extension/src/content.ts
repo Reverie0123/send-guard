@@ -1,12 +1,15 @@
 import {
   BAND_COLORS,
+  audienceFromCount,
   categoryLabel,
+  describeAudienceZh,
   getAlertLevel,
   getRiskSummary,
   localGate,
   MAX_TEXT_LENGTH,
   providerNote,
   riskBand,
+  type Audience,
   type JevResultPublic
 } from "@send-guard/core"
 import type { AnalyzeResponse, ConfigResponse, ContentConfig, ContentPush, ManualCheckResponse } from "./messages"
@@ -153,18 +156,18 @@ function cancelCurrent(): void {
 type Outcome =
   | { kind: "pass"; reason: "short" | "sensitive-field" | "empty" }
   | { kind: "words"; words: string[] }
-  | { kind: "result"; result: JevResultPublic; truncated: boolean }
+  | { kind: "result"; result: JevResultPublic; truncated: boolean; audience?: Audience }
   | { kind: "error"; reason: "no-key" | "failed" }
 
 /** 返回 null 表示结果已过期（有更新的检查在进行），调用方什么都不要做 */
-async function requestAnalysis(text: string): Promise<Outcome | null> {
+async function requestAnalysis(text: string, audience: Audience | undefined): Promise<Outcome | null> {
   cancelCurrent()
   const requestId = crypto.randomUUID()
   currentRequestId = requestId
 
   let resp: AnalyzeResponse | undefined
   try {
-    resp = (await chrome.runtime.sendMessage({ type: "analyze", requestId, text })) as AnalyzeResponse | undefined
+    resp = (await chrome.runtime.sendMessage({ type: "analyze", requestId, text, audience })) as AnalyzeResponse | undefined
   } catch {
     resp = undefined
   }
@@ -173,7 +176,7 @@ async function requestAnalysis(text: string): Promise<Outcome | null> {
   currentRequestId = null
 
   if (!resp || resp.requestId !== requestId) return { kind: "error", reason: "failed" }
-  if ("ok" in resp) return { kind: "result", result: resp.result, truncated: text.length > MAX_TEXT_LENGTH }
+  if ("ok" in resp) return { kind: "result", result: resp.result, truncated: text.length > MAX_TEXT_LENGTH, audience }
   if (resp.reason === "revoked") {
     teardown()
     return null
@@ -199,12 +202,14 @@ async function check(el: HTMLElement): Promise<Outcome | null> {
   const gate = localGate(text)
   if (!gate.check) return { kind: "pass", reason: "short" }
 
-  const key = `${await sha256(text)}|${config?.recipientContext ?? ""}|${config?.rulesVersion ?? 0}`
+  // 发送对象只取「私聊 / 群 + 人数区间」，不读取也不上传任何名字、地址
+  const audience = config?.autoAudience ? activeAdapter?.audience?.(el) : undefined
+  const key = `${await sha256(text)}|${config?.recipientContext ?? ""}|${config?.rulesVersion ?? 0}|${JSON.stringify(audience ?? null)}`
   if (seq !== checkSeq) return null
   const hit = cache.get(key)
-  if (hit) return { kind: "result", result: hit, truncated: text.length > MAX_TEXT_LENGTH }
+  if (hit) return { kind: "result", result: hit, truncated: text.length > MAX_TEXT_LENGTH, audience }
 
-  const outcome = await requestAnalysis(text)
+  const outcome = await requestAnalysis(text, audience)
   if (outcome?.kind === "result") cachePut(key, outcome.result)
   if (seq !== checkSeq) return null
   return outcome
@@ -444,7 +449,10 @@ function buildPanel(o: Outcome, mode: PanelMode): HTMLElement {
         h("span", { class: "val", text: categoryLabel(o.result.sensitiveCategory) })),
       h("div", { class: "row" },
         h("span", { class: "label", text: "复核建议" }),
-        h("span", { class: "val" }, bar(o.result.reviewWorthiness), h("span", { text: `${o.result.reviewWorthiness.toFixed(1)}/3` })))))
+        h("span", { class: "val" }, bar(o.result.reviewWorthiness), h("span", { text: `${o.result.reviewWorthiness.toFixed(1)}/3` }))),
+      h("div", { class: "row" },
+        h("span", { class: "label", text: "发送对象" }),
+        h("span", { class: "val", text: config?.autoAudience ? describeAudienceZh(o.audience) : "未开启自动识别" }))))
     panel.append(h("div", { class: "summary", text: `${getRiskSummary(o.result)}。` }))
     const note = providerNote(o.result.source)
     if (note) panel.append(h("div", { class: "note", text: note }))
@@ -501,6 +509,8 @@ interface SendAttempt {
 interface SiteAdapter {
   events: string[]
   detect(e: Event): SendAttempt | null
+  /** 粗粒度发送对象；识别不了返回 undefined（改用弹窗里的默认上下文） */
+  audience?(editor: HTMLElement): Audience | undefined
 }
 
 /** 适配层执行发送时置为 true，拦截器看到后直接放行 */
@@ -552,8 +562,25 @@ function gmailAttempt(from: Element, start: boolean): SendAttempt | null {
   return { editor, start, send: () => withBypass(() => dispatchClick(button)) }
 }
 
+/**
+ * 统计撰写窗口里的收件人数量（收件人 + 抄送 + 密送）。
+ * 地址只在本地去重计数，不保存、不上传。统计不到时返回 0。
+ */
+function gmailRecipientCount(editor: HTMLElement): number {
+  const root = gmailComposeRoot(editor)
+  if (!root) return 0
+  const ids = new Set<string>()
+  root.querySelectorAll<HTMLElement>("[data-hovercard-id], [email]").forEach(el => {
+    if (editor.contains(el)) return // 正文里的 @提及 不算收件人
+    const v = el.getAttribute("data-hovercard-id") || el.getAttribute("email") || ""
+    if (v.includes("@")) ids.add(v.toLowerCase())
+  })
+  return ids.size
+}
+
 const gmailAdapter: SiteAdapter = {
   events: ["pointerdown", "pointerup", "mousedown", "mouseup", "click", "keydown", "keyup"],
+  audience: editor => audienceFromCount(gmailRecipientCount(editor)),
   detect(e) {
     const t = eventTarget(e)
     if (!t) return null
@@ -593,6 +620,12 @@ function discordSendEnter(editor: HTMLElement): void {
 
 const discordAdapter: SiteAdapter = {
   events: ["keydown"],
+  // /channels/@me/… 是私信（群私信也在这里，按私聊处理）；/channels/<服务器>/… 是服务器频道
+  audience: () => {
+    const m = /^\/channels\/([^/]+)/.exec(location.pathname)
+    if (!m) return undefined
+    return m[1] === "@me" ? { kind: "direct" } : { kind: "group", size: "unknown" }
+  },
   detect(e) {
     if (!(e instanceof KeyboardEvent)) return null
     if (e.key !== "Enter" || e.shiftKey || e.altKey || e.isComposing || e.keyCode === 229) return null
@@ -603,6 +636,9 @@ const discordAdapter: SiteAdapter = {
 }
 
 const ADAPTERS: Record<string, SiteAdapter> = { gmail: gmailAdapter, discord: discordAdapter }
+
+/** 当前网站的适配器；未专门适配的网站为 undefined（只有手动检查 / 实时检查） */
+let activeAdapter: SiteAdapter | undefined
 
 // =====================================================================
 // 发送前检查（仅已适配站点）
@@ -775,6 +811,9 @@ on(document, "visibilitychange", () => {
 })
 
 const site = supportedSiteFor(location.hostname)
-if (site) installPresend(ADAPTERS[site.id]!)
+if (site) {
+  activeAdapter = ADAPTERS[site.id]
+  installPresend(activeAdapter!)
+}
 
 void refreshConfig()

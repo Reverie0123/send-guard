@@ -36,6 +36,7 @@ const el = {
   consent: $<HTMLInputElement>("consent"),
   recipientContext: $<HTMLInputElement>("recipientContext"),
   relationship: $<HTMLSelectElement>("relationship"),
+  autoAudience: $<HTMLInputElement>("autoAudience"),
   sensitiveWords: $<HTMLTextAreaElement>("sensitiveWords"),
   sites: $<HTMLUListElement>("sites"),
   sitesEmpty: $("sitesEmpty"),
@@ -75,6 +76,7 @@ function render(): void {
 
   if (document.activeElement !== el.recipientContext) el.recipientContext.value = s.recipientContext
   el.relationship.value = s.relationship
+  el.autoAudience.checked = s.autoAudience
   if (document.activeElement !== el.sensitiveWords) el.sensitiveWords.value = s.sensitiveWords
 
   renderCurrentSite()
@@ -242,6 +244,7 @@ el.consent.addEventListener("change", async () => {
 
 el.recipientContext.addEventListener("change", () => saveSettings({ recipientContext: el.recipientContext.value }))
 el.relationship.addEventListener("change", () => saveSettings({ relationship: el.relationship.value as Settings["relationship"] }))
+el.autoAudience.addEventListener("change", () => saveSettings({ autoAudience: el.autoAudience.checked }))
 el.sensitiveWords.addEventListener("change", () => saveSettings({ sensitiveWords: el.sensitiveWords.value }))
 
 el.enableSite.addEventListener("click", async () => {

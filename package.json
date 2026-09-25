@@ -1,6 +1,6 @@
 {
   "name": "send-guard",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "发送按钮前的语义隐私防火墙",
@@ -10,7 +10,11 @@
   ],
   "scripts": {
     "build": "tsx scripts/build.ts",
-    "typecheck": "tsc -p packages/core && tsc -p packages/extension && tsc -p scripts",
+    "typecheck": "tsc -p packages/core && tsc -p packages/extension && tsc -p scripts && tsc -p tests",
+    "test": "node --import tsx --test \"tests/unit/*.test.ts\"",
+    "calibrate": "tsx scripts/calibrate.ts",
+    "package": "npm run build && tsx scripts/package.ts",
+    "store:screenshots": "npm run build && tsx scripts/store-screenshots.ts",
     "version:sync": "tsx scripts/version-sync.ts",
     "release": "tsx scripts/release.ts"
   },

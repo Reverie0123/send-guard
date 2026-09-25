@@ -2,3 +2,5 @@ node_modules/
 packages/extension/dist/
 *.log
 .DS_Store
+release-artifacts/
+store/screenshots/03-popup.html

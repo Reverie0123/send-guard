@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send Guard 隐私政策</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <p class="back"><a href="./">← Send Guard</a></p>
+  <h1>Send Guard 隐私政策</h1>
+  <p class="meta">生效日期：2026-09-25 · 适用版本：v0.3.0 及以后 · <a href="#en">English</a></p>
+
+  <p>Send Guard 是一个浏览器扩展，在你发送消息之前检查内容是否涉及他人隐私，只在值得复核时提醒。Send Guard <strong>没有自己的服务器</strong>：扩展不会把任何数据发给开发者。</p>
+
+  <h2>什么时候会处理你的消息</h2>
+  <ul>
+    <li><strong>发送前检查（默认）</strong>：只在已适配的网站（目前是 Gmail 和 Discord）、你按下发送时检查。</li>
+    <li><strong>手动检查</strong>：只在你点击扩展弹窗里的「检查当前输入框」时检查。</li>
+    <li><strong>实时检查</strong>：默认关闭。只有你在弹窗里确认「未发送的草稿会在输入停止时上传」后才会开启。</li>
+  </ul>
+  <p>以下情况在本地直接跳过，不上传：密码框、信用卡字段、登录表单；客套短回复（如「好的」「收到」）；不涉及他人或敏感信息的短句。命中你设置的自定义敏感词时，只在本地提示，不上传。</p>
+
+  <h2>上传什么、发给谁</h2>
+  <p>需要检查时，扩展从你的浏览器<strong>直接</strong>把下列内容发送给<strong>你在弹窗里选择的检测服务</strong>，不经过任何其他服务器：</p>
+  <ul>
+    <li>这条消息的文字（最多 1000 字）；</li>
+    <li>你在弹窗里填写的「收件人默认上下文」和关系（例如「我的同事」），如果填写了；</li>
+    <li>当前网站的域名（例如 discord.com）；</li>
+    <li>发送对象的粗粒度信息（可在弹窗中关闭）：私聊还是群聊、大致人数区间（如「约 11–50 人」）。<strong>不读取也不上传</strong>收件人的名字、邮箱或用户名。</li>
+  </ul>
+  <table>
+    <tr><th>检测服务</th><th>接收方</th><th>该服务的隐私政策</th></tr>
+    <tr><td>TypeSafe Jev</td><td>api.typesafe.ai</td><td><a href="https://typesafe.ai/legal/privacy-policy">typesafe.ai/legal/privacy-policy</a></td></tr>
+    <tr><td>DeepSeek</td><td>api.deepseek.com</td><td><a href="https://cdn.deepseek.com/policies/zh-CN/deepseek-privacy-policy.html">DeepSeek 隐私政策</a></td></tr>
+    <tr><td>OpenRouter</td><td>openrouter.ai（再转给所选模型的服务商，只选不留存数据的服务商）</td><td><a href="https://openrouter.ai/privacy">openrouter.ai/privacy</a></td></tr>
+  </table>
+  <p>这些数据由对应服务商按其隐私政策处理。请求使用的是<strong>你自己的 API key</strong>，费用和数据处理关系在你与该服务商之间。</p>
+
+  <h2>保存在你电脑上的数据</h2>
+  <ul>
+    <li>设置（开关、触发模式、检测服务、收件人默认上下文、自定义敏感词、已启用的网站）；</li>
+    <li>各检测服务的 API key：保存在浏览器的扩展存储里，只由扩展后台读取，网页和页面脚本拿不到；</li>
+    <li>每月统计：检查次数和 token 数量。</li>
+  </ul>
+  <p><strong>不保存</strong>任何消息内容、检查结果原文或浏览记录，也不写日志。检查结果只在内存里短暂缓存，关闭页面即清除。卸载扩展会删除以上所有本地数据。</p>
+
+  <h2>权限说明</h2>
+  <ul>
+    <li><code>storage</code>：保存上面列出的设置和统计。</li>
+    <li><code>activeTab</code>、<code>scripting</code>：在你授权的网站上加载检查脚本。</li>
+    <li>对 api.typesafe.ai、api.deepseek.com、openrouter.ai 的访问：向你选择的检测服务发送检查请求。</li>
+    <li>其他网站（可选权限）：只有你在弹窗里点「在此网站启用」并在浏览器授权框里同意后，扩展才会在该网站工作；你随时可以在弹窗或浏览器设置里撤销，撤销后立即停止。</li>
+  </ul>
+
+  <h2>我们不做的事</h2>
+  <ul>
+    <li>不收集、不出售、不共享你的个人数据；</li>
+    <li>不做广告或数据分析，不嵌入第三方追踪；</li>
+    <li>不调用生成式模型为你撰写或改写消息，提示文字由固定模板生成。</li>
+  </ul>
+
+  <h2>联系方式</h2>
+  <p>问题或建议请在 GitHub 提交 issue：<a href="https://github.com/Reverie0123/send-guard/issues">github.com/Reverie0123/send-guard/issues</a>。本政策如有变更，会在此页面更新并注明生效日期。</p>
+
+  <hr>
+
+  <h1 id="en">Send Guard Privacy Policy</h1>
+  <p class="meta">Effective 2026-09-25 · applies to v0.3.0 and later</p>
+  <p>Send Guard is a browser extension that checks whether a message may disclose someone else's private information right before you send it. Send Guard has <strong>no server of its own</strong>; the extension never sends data to its developer.</p>
+  <h2>When messages are processed</h2>
+  <p>Only when you press Send on a supported site (currently Gmail and Discord), when you click "Check current input" in the popup, or — only if you explicitly opt in — when you pause typing (real-time mode). Password fields, payment-card fields, login forms, trivial short replies and short messages that don't involve other people are skipped locally. Custom sensitive words are matched locally and never uploaded.</p>
+  <h2>What is sent, and to whom</h2>
+  <p>The message text (up to 1,000 characters), the optional recipient context and relationship you typed in the popup, the site's domain, and — unless you turn it off — a coarse audience hint (direct message vs. group, and an approximate size range). Recipient names, email addresses and usernames are never read or sent. The data goes directly from your browser to the detection service you selected (TypeSafe <a href="https://typesafe.ai/legal/privacy-policy">privacy</a>, DeepSeek <a href="https://cdn.deepseek.com/policies/zh-CN/deepseek-privacy-policy.html">privacy</a>, or OpenRouter <a href="https://openrouter.ai/privacy">privacy</a>, routed only to providers that do not retain data), using your own API key.</p>
+  <h2>Stored locally</h2>
+  <p>Settings, your API keys (readable only by the extension's background script) and monthly counters (number of checks and tokens). No message content, results or browsing history are stored or logged. Uninstalling the extension removes all of it.</p>
+  <h2>We do not</h2>
+  <p>collect, sell or share personal data; run ads, analytics or third-party trackers; or use generative AI to write or rewrite your messages.</p>
+  <h2>Contact</h2>
+  <p><a href="https://github.com/Reverie0123/send-guard/issues">github.com/Reverie0123/send-guard/issues</a></p>
+</main>
+</body>
+</html>

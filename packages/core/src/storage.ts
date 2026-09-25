@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
   apiKey: "apiKey",                       // TypeSafe Jev key（其他服务见 providerKeyName）
   provider: "provider",                   // "jev" | "deepseek" | "openrouter"
   enabled: "enabled",                     // "1" | "0"，缺省视为开启
+  autoAudience: "autoAudience",           // "0" 关闭自动识别发送对象，缺省开启
   mode: "mode",                           // "presend" | "realtime"
   realtimeConsent: "realtimeConsent",     // "1" 表示用户已确认草稿会实时上传
   recipientContext: "recipientContext",

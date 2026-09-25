@@ -1,0 +1,35 @@
+/* 商店截图公共样式。面板部分与 packages/extension/src/content.ts 的 STYLE 保持一致 */
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1280px; height: 800px; overflow: hidden; }
+body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; display: flex; background: #f4f6fb; }
+
+.caption { width: 400px; padding: 72px 44px; display: flex; flex-direction: column; gap: 18px; background: #2b6cb0; color: #fff; }
+.caption img { width: 56px; height: 56px; }
+.caption h1 { font-size: 34px; line-height: 1.3; margin: 0; }
+.caption p { font-size: 18px; line-height: 1.7; margin: 0; opacity: .92; }
+.stage { flex: 1; position: relative; overflow: hidden; }
+
+.panel {
+  position: absolute; width: 288px; background: #fff; color: #1a202c;
+  border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.22); border: 1px solid #e2e8f0;
+  font-size: 13px; overflow: hidden;
+}
+.head { padding: 10px 14px; font-weight: 600; font-size: 14px; border-bottom: 1px solid #edf2f7; }
+.head.warn { background: #fffaf0; color: #9c4221; }
+.head.red { background: #fff5f5; color: #9b2c2c; }
+.rows { padding: 8px 14px; border-bottom: 1px solid #edf2f7; }
+.row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; }
+.row .label { color: #4a5568; }
+.row .val { display: flex; gap: 8px; align-items: center; }
+.band { font-weight: 700; font-size: 11px; }
+.bar { display: inline-flex; gap: 2px; }
+.bar i { display: block; width: 14px; height: 8px; border-radius: 2px; background: #e2e8f0; }
+.summary { padding: 10px 14px; line-height: 1.55; border-bottom: 1px solid #edf2f7; }
+.actions { display: flex; gap: 8px; padding: 10px 14px; justify-content: flex-end; }
+.actions span { font-size: 13px; padding: 6px 14px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; color: #2d3748; }
+.actions span.primary { background: #2b6cb0; border-color: #2b6cb0; color: #fff; }
+.icon {
+  position: absolute; width: 24px; height: 24px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; box-shadow: 0 1px 4px rgba(0,0,0,.25); border: 2px solid #dd6b20; background: #fffaf0;
+}
+.icon.red { border-color: #e53e3e; background: #fff5f5; }

@@ -1,4 +1,4 @@
-import type { AnalyzeInput, JevResult, TokenUsage } from "./types"
+import type { AnalyzeInput, Audience, JevResult, TokenUsage } from "./types"
 
 // 接口结构已对照官方文档 https://docs.typesafe.ai/api 校对（2026-09-25）
 export const JEV_ENDPOINT = "https://api.typesafe.ai/v1/systemone"
@@ -17,6 +17,19 @@ export class JevError extends Error {
   }
 }
 
+const SIZE_EN: Record<string, string> = {
+  small: "about 2-10 people",
+  medium: "about 11-50 people",
+  large: "more than 50 people",
+  unknown: "an unknown number of people"
+}
+
+/** 给模型看的发送对象描述 */
+export function describeAudienceEn(a: Audience): string {
+  if (a.kind === "direct") return "direct message to one person"
+  return `group chat / channel / multiple recipients (${SIZE_EN[a.size ?? "unknown"]} can read it)`
+}
+
 export function buildState(input: AnalyzeInput): string {
   const parts: string[] = [`Message: ${input.text.slice(0, MAX_TEXT_LENGTH)}`]
 
@@ -27,6 +40,7 @@ export function buildState(input: AnalyzeInput): string {
   }
 
   if (input.relationship) parts.push(`Relationship: ${input.relationship}`)
+  if (input.audience) parts.push(`Audience: ${describeAudienceEn(input.audience)}`)
   if (input.site) parts.push(`Platform: ${input.site}`)
   if (input.conversationContext) parts.push(`Recent context: ${input.conversationContext}`)
 

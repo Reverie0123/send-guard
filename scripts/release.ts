@@ -1,7 +1,7 @@
 /**
  * 一键发布。顺序固定，任何一步失败立即非零退出，不推送：
  *   1. version:sync 并校验三处版本号一致
- *   2. tsc 类型检查
+ *   2. tsc 类型检查 + 单元测试（npm test），任一失败即中止
  *   （git 操作前的安全检查：CHANGELOG 有本版本记录、README 写了当前版本、在 main 分支、tag 未被占用）
  *   3. git add -A
  *   4. git commit -m "release: v{version} - {CHANGELOG 本次版本第一条描述}"
@@ -57,8 +57,9 @@ function main(): void {
     if (readJsonVersion(rel) !== version) fail(`${rel} 的版本号与根目录不一致`)
   }
 
-  // 2. 编译检查
+  // 2. 编译检查 + 单元测试
   step("2/6 tsc 编译检查", "npm", ["run", "typecheck"])
+  step("2/6 单元测试", "npm", ["test"])
 
   // git 操作前的安全检查
   const summary = changelogFirstEntry(version)
@@ -73,7 +74,14 @@ function main(): void {
   step("3/6 暂存", "git", ["add", "-A"])
   step("4/6 提交", "git", ["commit", "-m", `release: v${version} - ${summary}`])
   step("5/6 打 tag", "git", ["tag", "-a", `v${version}`, "-m", `v${version}`])
-  step("6/6 推送", "git", ["push", "origin", "main", "--follow-tags"])
+  try {
+    step("6/6 推送", "git", ["push", "origin", "main", "--follow-tags"])
+  } catch {
+    // 网络偶发失败时重试一次；再失败照常报错退出
+    console.log("推送失败，5 秒后重试一次…")
+    execFileSync(process.execPath, ["-e", "setTimeout(() => {}, 5000)"])
+    step("6/6 推送（重试）", "git", ["push", "origin", "main", "--follow-tags"])
+  }
 
   console.log(`\n✔ v${version} 已发布`)
 }

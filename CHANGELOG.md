@@ -2,6 +2,15 @@
 
 版本号只在根目录 `package.json` 维护，通过 `npm run version:sync` 同步。
 
+## [0.3.0] - 2026-09-25
+### Added
+- 自动识别发送对象：Discord 区分服务器频道 / 私信，Gmail 统计收件人数量；只上传「私聊 / 群聊 + 人数区间」，不读取名字和地址；面板显示识别结果，弹窗可关闭（影响范围：extension / core）
+- 测试进仓库：`npm test` 单元测试（22 项，发布流程自动运行，不过就不推送）；`npm run calibrate` 用 89 条中文样本跑真实接口统计漏报 / 误报（影响范围：core）
+- 上架材料：GitHub Pages 隐私政策与介绍页（docs/）、商店文案与权限说明（store/listing.md）、截图生成脚本、`npm run package` 打包 zip（影响范围：extension）
+### Changed
+- 发布脚本推送失败时自动重试一次，仍失败则报错退出（影响范围：extension / core）
+- 桌面版计划顺延至 v0.4.0（影响范围：desktop）
+
 ## [0.2.1] - 2026-09-25
 ### Fixed
 - 不到 20 字的短句不再一律放行：改为本地判断是否涉及他人 / 敏感事件 / 号码，涉及则上传检查（如「我朋友小李今天在学校被打了」）（影响范围：core / extension）

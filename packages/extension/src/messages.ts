@@ -1,4 +1,4 @@
-import type { JevResultPublic, LlmProvider, Provider, Relationship } from "@send-guard/core"
+import type { Audience, JevResultPublic, LlmProvider, Provider, Relationship } from "@send-guard/core"
 
 export type TriggerMode = "presend" | "realtime"
 
@@ -10,6 +10,7 @@ export interface ContentConfig {
   recipientContext: string
   relationship: Relationship | ""
   rulesVersion: number
+  autoAudience: boolean           // 是否自动识别发送对象（群聊 / 私聊）
 }
 
 /** getConfig 的响应：allowed=false 表示本页所在网站已被撤销授权 */
@@ -26,6 +27,7 @@ export interface Settings {
   recipientContext: string
   relationship: Relationship | ""
   sensitiveWords: string
+  autoAudience: boolean
 }
 
 export interface MonthStats {
@@ -50,7 +52,7 @@ export interface PopupState {
 // content → background
 export type ContentRequest =
   | { type: "getConfig" }
-  | { type: "analyze"; requestId: string; text: string }
+  | { type: "analyze"; requestId: string; text: string; audience?: Audience }
   | { type: "cancel"; requestId: string }
 
 export type AnalyzeResponse =

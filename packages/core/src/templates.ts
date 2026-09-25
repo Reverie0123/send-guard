@@ -1,4 +1,4 @@
-import type { AlertLevel, JevResultPublic, Provider, RiskBand } from "./types"
+import type { AlertLevel, Audience, JevResultPublic, Provider, RiskBand } from "./types"
 
 // 所有 UI 文案都在这里 deterministic 生成，不调用任何生成式模型。
 
@@ -121,4 +121,13 @@ export const PROVIDER_LABELS: Record<Provider, string> = {
 export function providerNote(source: Provider | undefined): string {
   if (!source || source === "jev") return ""
   return `由 ${PROVIDER_LABELS[source]} 通用模型估算，概率未经校准，仅供参考。`
+}
+
+const SIZE_ZH: Record<string, string> = { small: "约 2–10 人", medium: "约 11–50 人", large: "50 人以上", unknown: "人数未知" }
+
+/** 面板上显示的发送对象；未识别时说明用的是默认上下文 */
+export function describeAudienceZh(a: Audience | undefined): string {
+  if (!a) return "未识别（用默认上下文）"
+  if (a.kind === "direct") return "私聊 / 单个收件人"
+  return `群聊 / 多个收件人（${SIZE_ZH[a.size ?? "unknown"]}）`
 }

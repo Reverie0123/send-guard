@@ -2,6 +2,7 @@ import {
   analyze,
   analyzeWithLlm,
   currentMonth,
+  isAudience,
   JevError,
   PROVIDERS,
   providerKeyName,
@@ -10,6 +11,7 @@ import {
   STORAGE_KEYS,
   statsKey,
   type AnalyzeInput,
+  type Audience,
   type JevResult,
   type JevResultPublic,
   type LlmProvider,
@@ -39,14 +41,15 @@ const API_ORIGINS = ["https://api.typesafe.ai/*", "https://api.deepseek.com/*", 
 // ---------- 设置 ----------
 
 async function loadSettings(): Promise<Settings> {
-  const [enabled, provider, mode, consent, recipientContext, relationship, sensitiveWords] = await Promise.all([
+  const [enabled, provider, mode, consent, recipientContext, relationship, sensitiveWords, autoAudience] = await Promise.all([
     storage.get(STORAGE_KEYS.enabled),
     storage.get(STORAGE_KEYS.provider),
     storage.get(STORAGE_KEYS.mode),
     storage.get(STORAGE_KEYS.realtimeConsent),
     storage.get(STORAGE_KEYS.recipientContext),
     storage.get(STORAGE_KEYS.relationship),
-    storage.get(STORAGE_KEYS.sensitiveWords)
+    storage.get(STORAGE_KEYS.sensitiveWords),
+    storage.get(STORAGE_KEYS.autoAudience)
   ])
   return {
     enabled: enabled !== "0",
@@ -55,7 +58,8 @@ async function loadSettings(): Promise<Settings> {
     realtimeConsent: consent === "1",
     recipientContext: recipientContext ?? "",
     relationship: RELATIONSHIPS.includes(relationship as Relationship) ? (relationship as Relationship) : "",
-    sensitiveWords: sensitiveWords ?? ""
+    sensitiveWords: sensitiveWords ?? "",
+    autoAudience: autoAudience !== "0"
   }
 }
 
@@ -72,7 +76,8 @@ async function loadContentConfig(): Promise<ContentConfig> {
     sensitiveWords: parseWords(s.sensitiveWords),
     recipientContext: s.recipientContext,
     relationship: s.relationship,
-    rulesVersion: await storage.getNumber(STORAGE_KEYS.rulesVersion)
+    rulesVersion: await storage.getNumber(STORAGE_KEYS.rulesVersion),
+    autoAudience: s.autoAudience
   }
 }
 
@@ -93,6 +98,10 @@ async function saveSettings(patch: Partial<Settings>): Promise<void> {
   if (patch.relationship !== undefined) {
     const r = RELATIONSHIPS.includes(patch.relationship as Relationship) ? patch.relationship : ""
     await storage.set(STORAGE_KEYS.relationship, r)
+    rulesChanged = true
+  }
+  if (patch.autoAudience !== undefined) {
+    await storage.set(STORAGE_KEYS.autoAudience, patch.autoAudience ? "1" : "0")
     rulesChanged = true
   }
   if (patch.sensitiveWords !== undefined) {
@@ -181,7 +190,12 @@ async function senderAllowedHost(sender: chrome.runtime.MessageSender): Promise<
   return (await chrome.permissions.contains({ origins: [`${url.origin}/*`] })) ? url.hostname : null
 }
 
-async function handleAnalyze(requestId: string, text: string, sender: chrome.runtime.MessageSender): Promise<AnalyzeResponse> {
+async function handleAnalyze(
+  requestId: string,
+  text: string,
+  audience: Audience | undefined,
+  sender: chrome.runtime.MessageSender
+): Promise<AnalyzeResponse> {
   try {
     // 用户撤销权限后立即停止工作
     const hostname = await senderAllowedHost(sender)
@@ -194,7 +208,9 @@ async function handleAnalyze(requestId: string, text: string, sender: chrome.run
       text,
       recipientContext: s.recipientContext || undefined,
       relationship: s.relationship || undefined,
-      site: hostname
+      site: hostname,
+      // 只接受合法的粗粒度取值；用户关闭自动识别时不上传
+      audience: s.autoAudience && isAudience(audience) ? { kind: audience.kind, size: audience.size } : undefined
     })
 
     // 请求已经花了 token，统计照记；但已取消的结果直接丢弃，不回给页面
@@ -320,7 +336,7 @@ chrome.runtime.onMessage.addListener((msg: ContentRequest | PopupRequest, sender
         }))())
       case "analyze":
         if (typeof msg.requestId !== "string" || typeof msg.text !== "string") return false
-        return reply(handleAnalyze(msg.requestId, msg.text, sender))
+        return reply(handleAnalyze(msg.requestId, msg.text, msg.audience, sender))
       case "cancel":
         if (typeof msg.requestId === "string") {
           const id = msg.requestId
