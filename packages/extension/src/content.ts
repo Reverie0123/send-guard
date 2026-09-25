@@ -13,6 +13,7 @@ import {
   type JevResultPublic
 } from "@send-guard/core"
 import type { AnalyzeResponse, ConfigResponse, ContentConfig, ContentPush, ManualCheckResponse } from "./messages"
+import { GMAIL_EDITOR, GMAIL_SEND, gmailComposeRoot, gmailRecipientCount } from "./gmail"
 import { patternMatchesUrl, supportedSiteFor } from "./sites"
 
 // =====================================================================
@@ -541,41 +542,13 @@ function dispatchClick(el: HTMLElement): void {
   el.dispatchEvent(new MouseEvent("click", init))
 }
 
-// ---- Gmail ----
-const GMAIL_EDITOR = 'div[contenteditable="true"][g_editable="true"]'
-// 发送按钮 tooltip 形如「发送 (Ctrl-Enter)」/「Send (⌘Enter)」，不依赖界面语言；.T-I.aoO 为兜底
-const GMAIL_SEND = '[role="button"][data-tooltip*="Enter)"], [role="button"][aria-label*="Enter)"], .T-I.aoO'
-
-function gmailComposeRoot(from: Element): Element | null {
-  let node: Element | null = from
-  for (let i = 0; node && i < 40; i++, node = node.parentElement) {
-    if (node.querySelector(GMAIL_EDITOR) && node.querySelector(GMAIL_SEND)) return node
-  }
-  return null
-}
-
+// ---- Gmail ----（选择器与收件人计数在 gmail.ts）
 function gmailAttempt(from: Element, start: boolean): SendAttempt | null {
   const root = gmailComposeRoot(from)
   const editor = root?.querySelector<HTMLElement>(GMAIL_EDITOR)
   const button = root?.querySelector<HTMLElement>(GMAIL_SEND)
   if (!editor || !button) return null
   return { editor, start, send: () => withBypass(() => dispatchClick(button)) }
-}
-
-/**
- * 统计撰写窗口里的收件人数量（收件人 + 抄送 + 密送）。
- * 地址只在本地去重计数，不保存、不上传。统计不到时返回 0。
- */
-function gmailRecipientCount(editor: HTMLElement): number {
-  const root = gmailComposeRoot(editor)
-  if (!root) return 0
-  const ids = new Set<string>()
-  root.querySelectorAll<HTMLElement>("[data-hovercard-id], [email]").forEach(el => {
-    if (editor.contains(el)) return // 正文里的 @提及 不算收件人
-    const v = el.getAttribute("data-hovercard-id") || el.getAttribute("email") || ""
-    if (v.includes("@")) ids.add(v.toLowerCase())
-  })
-  return ids.size
 }
 
 const gmailAdapter: SiteAdapter = {
