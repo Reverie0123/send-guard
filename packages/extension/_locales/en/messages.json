@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Send Guard",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "A privacy check before you hit Send: flags messages that may expose someone else's private info. Warns, never blocks.",
+    "description": "Store / manifest short description, max 132 characters"
+  }
+}

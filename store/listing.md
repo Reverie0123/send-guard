@@ -6,7 +6,7 @@
 
 - **名称**：Send Guard
 - **类别**：生产力工具（Productivity）
-- **语言**：中文（简体）为主，附英文
+- **语言**：扩展包自 v0.3.2 起带 `_locales/en` 与 `_locales/zh_CN`，商店后台可分别填写英文和中文（简体）介绍；界面文字跟随浏览器语言
 - **隐私政策网址**：https://reverie0123.github.io/send-guard/privacy.html
 - **网站**：https://reverie0123.github.io/send-guard/
 - **支持网址**：https://github.com/Reverie0123/send-guard/issues
@@ -100,6 +100,30 @@ Open source: https://github.com/Reverie0123/send-guard
 3. `03-popup.png`：设置弹窗（检测服务、发送对象识别、自定义敏感词）
 
 截图由 `store/screenshots/*.html` 生成，内容为示例数据，不含真实用户信息。
+
+## 商店图标与宣传图
+
+- `store/screenshots/logo-300.png`：商店图标（300×300，Edge 必填）
+- `store/screenshots/promo-440x280.png`：小宣传图（440×280，可选）
+
+均由 `npm run store:screenshots` 生成。
+
+## 给审核员的测试说明（Notes for certification）
+
+```
+Send Guard checks a message for third-party privacy disclosure right before it is sent. It uses the reviewer's/user's own API key; no account or server of ours is involved.
+
+How to test without an API key (recommended for review):
+1. Open https://discord.com or https://mail.google.com, click the extension icon, then "在此网站启用" (Enable on this site) and allow the permission prompt.
+2. Type a message of 20+ characters and press Enter (Discord) or Send / Ctrl+Enter (Gmail).
+3. Sending is paused and a panel appears. Without an API key it shows "? 检查未完成" (check incomplete) — by design, a failed check is never shown as "safe". Click "仍然发送" (Send anyway) to send, or "我再看看" (Let me review) to cancel.
+4. Local-only feature (no key needed): in the popup, enter a word under "自定义敏感词" (custom sensitive words), e.g. "secret". Typing a message containing it and pressing Send shows a red panel; nothing is uploaded.
+
+Optional, with a key: choose "DeepSeek" in the popup, paste a DeepSeek API key (platform.deepseek.com), click "保存并测试连接". A message like "Li in our class failed three exams and may be expelled" sent in a server channel then shows risk scores.
+
+Permissions: host access to other sites is optional and only requested when the user clicks "Enable on this site". api.typesafe.ai / api.deepseek.com / openrouter.ai are the detection services the user can choose. No remote code.
+Privacy policy: https://reverie0123.github.io/send-guard/privacy.html
+```
 
 ## 提交前自查
 

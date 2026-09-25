@@ -31,6 +31,7 @@ if (!browser) {
 // 03：真实弹窗原样放进 iframe（srcdoc，样式互不干扰），chrome.* 换成示例数据
 const version = (JSON.parse(readFileSync(join(DIST, "manifest.json"), "utf8")) as { version: string }).version
 const stub = `window.chrome = {
+  i18n: { getUILanguage: () => "zh-CN" },
   runtime: { getManifest: () => ({ version: "${version}" }),
     async sendMessage(m) {
       if (m.type === "getPopupState") return {
@@ -63,17 +64,21 @@ writeFileSync(join(SHOTS, "03-popup.html"), `<!doctype html>
   <script>document.querySelector("iframe").srcdoc = ${srcdoc}</script>
 </body></html>`)
 
-const pages = ["01-warning", "02-gmail", "03-popup"]
+// [页面, 宽, 高]：截图 1280×800；商店图标 300×300；宣传小图 440×280
+const pages: [string, number, number][] = [
+  ["01-warning", 1280, 800], ["02-gmail", 1280, 800], ["03-popup", 1280, 800],
+  ["logo-300", 300, 300], ["promo-440x280", 440, 280]
+]
 const sleep = (ms: number) => execFileSync(process.execPath, ["-e", `setTimeout(() => {}, ${ms})`])
 
-for (const page of pages) {
+for (const [page, width, height] of pages) {
   const out = join(SHOTS, `${page}.png`)
   rmSync(out, { force: true })
   // 每张图用独立的临时用户目录：共用目录时，新启动的实例会把任务交给还没退出的旧实例，导致截图丢失
   const profile = mkdtempSync(join(tmpdir(), "send-guard-shot-"))
   execFileSync(browser, [
     "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run", "--no-default-browser-check",
-    `--user-data-dir=${profile}`, "--window-size=1280,800", "--virtual-time-budget=2000",
+    `--user-data-dir=${profile}`, `--window-size=${width},${height}`, "--virtual-time-budget=2000",
     `--screenshot=${out}`, pathToFileURL(join(SHOTS, `${page}.html`)).href
   ], { stdio: "ignore", timeout: 60_000 })
   for (let i = 0; i < 20 && !existsSync(out); i++) sleep(500)

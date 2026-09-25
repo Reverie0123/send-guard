@@ -5,7 +5,7 @@
  *   - 生成 16/32/48/128 PNG 图标（manifest 的 icons 不支持 SVG）
  */
 import { build } from "esbuild"
-import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
+import { copyFileSync, cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { deflateSync } from "node:zlib"
@@ -35,6 +35,7 @@ await build({
 copyFileSync(join(EXT, "manifest.json"), join(DIST, "manifest.json"))
 copyFileSync(join(EXT, "src/popup.html"), join(DIST, "popup.html"))
 copyFileSync(join(EXT, "icons/icon.svg"), join(DIST, "icons/icon.svg"))
+cpSync(join(EXT, "_locales"), join(DIST, "_locales"), { recursive: true })
 
 for (const size of [16, 32, 48, 128]) {
   writeFileSync(join(DIST, `icons/icon-${size}.png`), renderIcon(size))

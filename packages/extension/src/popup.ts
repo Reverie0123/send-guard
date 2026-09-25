@@ -11,7 +11,17 @@ import {
   type Provider
 } from "@send-guard/core"
 import type { ManualCheckResponse, PopupRequest, PopupState, Settings, TestConnectionResponse } from "./messages"
+import { locale, t } from "./i18n"
 import { patternMatchesUrl, SUPPORTED_SITES, supportedSiteFor } from "./sites"
+
+// 静态文案：data-i18n 填文字，data-i18n-ph 填 placeholder
+document.documentElement.lang = locale === "zh" ? "zh-CN" : "en"
+document.querySelectorAll<HTMLElement>("[data-i18n]").forEach(el => {
+  el.textContent = t[el.dataset.i18n as keyof typeof t] as string
+})
+document.querySelectorAll<HTMLInputElement>("[data-i18n-ph]").forEach(el => {
+  el.placeholder = t[el.dataset.i18nPh as keyof typeof t] as string
+})
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
 
@@ -84,19 +94,13 @@ function render(): void {
   renderStats()
 }
 
-const PROVIDER_NOTES: Record<Provider, string> = {
-  jev: "消息会发送到 TypeSafe（api.typesafe.ai）做检查。",
-  deepseek: "消息会发送到 DeepSeek 官方（api.deepseek.com）做检查。通用大模型给出的概率未经校准，仅作临时替代。",
-  openrouter: "消息会经 OpenRouter 转发给所选模型的服务商做检查。通用大模型给出的概率未经校准，仅作临时替代。"
-}
+const PROVIDER_NOTES: Record<Provider, string> = { jev: t.noteJev, deepseek: t.noteDeepseek, openrouter: t.noteOpenrouter }
 
 function renderProvider(): void {
   const p = el.provider.value as Provider
   el.providerNote.textContent = PROVIDER_NOTES[p]
   el.apiKey.value = ""
-  el.apiKey.placeholder = state.hasKey[p]
-    ? `${PROVIDER_LABELS[p]} key 已保存（输入新 key 可覆盖）`
-    : `粘贴你的 ${PROVIDER_LABELS[p]} API key`
+  el.apiKey.placeholder = state.hasKey[p] ? t.keySaved(PROVIDER_LABELS[p]) : t.keyPaste(PROVIDER_LABELS[p])
   el.keyMsg.textContent = ""
   if (p === "jev") {
     el.modelRow.hidden = true
@@ -104,7 +108,7 @@ function renderProvider(): void {
   }
   el.modelRow.hidden = false
   el.model.value = state.models[p]
-  el.model.placeholder = `模型（默认 ${LLM_PRESETS[p].defaultModel}）`
+  el.model.placeholder = t.modelPlaceholder(LLM_PRESETS[p].defaultModel)
 }
 
 function renderCurrentSite(): void {
@@ -118,7 +122,7 @@ function renderCurrentSite(): void {
     url = null
   }
   if (!url || (url.protocol !== "https:" && url.protocol !== "http:")) {
-    el.siteName.textContent = "此页面不支持"
+    el.siteName.textContent = t.unsupportedPage
     return
   }
   el.siteName.textContent = url.hostname
@@ -126,11 +130,11 @@ function renderCurrentSite(): void {
   const supported = supportedSiteFor(url.hostname)
   const enabled = state.sites.some(p => patternMatchesUrl(p, url!.href))
   if (enabled) {
-    el.siteTag.textContent = supported ? "发送前拦截" : "手动检查"
+    el.siteTag.textContent = supported ? t.tagPresend : t.tagManual
     el.siteTag.className = supported ? "tag verified" : "tag"
     el.manualCheck.hidden = false
   } else {
-    el.siteTag.textContent = "未启用"
+    el.siteTag.textContent = t.tagDisabled
     el.siteTag.className = "tag"
     el.enableSite.hidden = false
   }
@@ -148,9 +152,9 @@ function renderSites(): void {
     const tag = document.createElement("span")
     const supported = SUPPORTED_SITES.some(s => patternMatchesUrl(origin, `https://${s.host}/`))
     tag.className = supported ? "tag verified" : "tag"
-    tag.textContent = supported ? "发送前拦截" : "手动检查"
+    tag.textContent = supported ? t.tagPresend : t.tagManual
     const rm = document.createElement("button")
-    rm.textContent = "移除"
+    rm.textContent = t.remove
     rm.addEventListener("click", async () => {
       rm.disabled = true
       await send({ type: "removeSite", origin })
@@ -163,18 +167,17 @@ function renderSites(): void {
 
 function renderStats(): void {
   const { count, input, output, jevInput, deepseekInput, deepseekOutput, costUsd } = state.stats
-  el.statsLine.textContent = `本月已检查 ${count} 条，使用 input ${input} / output ${output} tokens`
+  el.statsLine.textContent = t.stats(count, input, output)
   const lines: string[] = []
-  if (costUsd > 0) lines.push(`OpenRouter 实际费用 ${formatUsd(costUsd)}`)
+  if (costUsd > 0) lines.push(t.costOpenrouter(formatUsd(costUsd)))
   if (deepseekInput > 0) {
-    lines.push(`DeepSeek 估算费用约 ${formatCny(estimateDeepseekCny(deepseekInput, deepseekOutput))}` +
-      `（按高峰价 ¥${DEEPSEEK_CNY_PER_M_INPUT}/1M input、¥${DEEPSEEK_CNY_PER_M_OUTPUT}/1M output 估算）`)
+    lines.push(t.costDeepseek(formatCny(estimateDeepseekCny(deepseekInput, deepseekOutput)), DEEPSEEK_CNY_PER_M_INPUT, DEEPSEEK_CNY_PER_M_OUTPUT))
   }
   // Jev 响应没有金额字段，只能估算；没有任何用量时也显示这一行
   if (jevInput > 0 || lines.length === 0) {
-    lines.push(`Jev 估算费用约 ${formatUsd(estimateCostUsd(jevInput))}（按 $${ESTIMATE_USD_PER_M_INPUT}/1M input tokens 估算）`)
+    lines.push(t.costJev(formatUsd(estimateCostUsd(jevInput)), ESTIMATE_USD_PER_M_INPUT))
   }
-  el.costLine.textContent = lines.join("；")
+  el.costLine.textContent = lines.join(t.costSep)
 }
 
 // ---------- 事件 ----------
@@ -203,9 +206,9 @@ el.saveKey.addEventListener("click", async () => {
       state.models[provider] = el.model.value.trim()
     }
     renderProvider()
-    el.keyMsg.textContent = "测试中…"
+    el.keyMsg.textContent = t.testing
     const r = await send<TestConnectionResponse>({ type: "testConnection" })
-    el.keyMsg.textContent = r.ok ? "连接成功" : r.reason
+    el.keyMsg.textContent = r.ok ? t.connected : r.reason
     el.keyMsg.className = r.ok ? "ok" : "bad"
     state = await send<PopupState>({ type: "getPopupState" })
     renderStats()
@@ -251,7 +254,7 @@ el.enableSite.addEventListener("click", async () => {
   if (!tabPattern) return
   // 授权后由 background 的 permissions.onAdded 负责注册并注入 content script
   const granted = await chrome.permissions.request({ origins: [tabPattern] }).catch(() => false)
-  el.siteMsg.textContent = granted ? "已启用。" : "未授权。"
+  el.siteMsg.textContent = granted ? t.granted : t.denied
   await load()
 })
 
@@ -262,18 +265,14 @@ el.manualCheck.addEventListener("click", async () => {
   try {
     r = (await chrome.tabs.sendMessage(tab.id, { type: "manualCheck" })) as ManualCheckResponse
   } catch {
-    el.siteMsg.textContent = "页面上还没有加载 Send Guard，请刷新页面后再试。"
+    el.siteMsg.textContent = t.notLoaded
     return
   }
   if (r?.ok) {
     window.close()
     return
   }
-  el.siteMsg.textContent = {
-    "no-input": "请先点一下要检查的输入框，再点这个按钮。",
-    "sensitive-field": "这是密码 / 支付 / 登录字段，不做检查。",
-    disabled: "Send Guard 已关闭。"
-  }[r?.reason ?? "no-input"]
+  el.siteMsg.textContent = { "no-input": t.noInput, "sensitive-field": t.sensitiveField, disabled: t.disabled }[r?.reason ?? "no-input"]
 })
 
 void load()

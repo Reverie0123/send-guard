@@ -2,7 +2,7 @@ import {
   BAND_COLORS,
   audienceFromCount,
   categoryLabel,
-  describeAudienceZh,
+  describeAudience,
   getAlertLevel,
   getRiskSummary,
   localGate,
@@ -13,6 +13,7 @@ import {
   type JevResultPublic
 } from "@send-guard/core"
 import type { AnalyzeResponse, ConfigResponse, ContentConfig, ContentPush, ManualCheckResponse } from "./messages"
+import { locale, t } from "./i18n"
 import { GMAIL_EDITOR, GMAIL_SEND, gmailComposeRoot, gmailRecipientCount } from "./gmail"
 import { patternMatchesUrl, supportedSiteFor } from "./sites"
 
@@ -332,12 +333,7 @@ class Ui {
     }
     this.icon.className = `icon ${state}`
     this.icon.textContent = { loading: "🔍", warn: "⚠️", red: "🔴", error: "?" }[state]
-    this.icon.title = {
-      loading: "Send Guard 检测中…",
-      warn: "发送前注意，点击查看",
-      red: "高风险，点击查看",
-      error: "检查未完成，请确认 API key"
-    }[state]
+    this.icon.title = { loading: t.iconLoading, warn: t.iconWarn, red: t.iconRed, error: t.iconError }[state]
     this.reposition()
   }
 
@@ -440,52 +436,47 @@ function buildPanel(o: Outcome, mode: PanelMode): HTMLElement {
 
   if (o.kind === "result") {
     const level = getAlertLevel(o.result)
-    const head = level === "red" ? "🔴  发送前注意" : level === "warn" ? "⚠️  发送前注意" : "检查完成"
+    const head = level === "red" ? t.headRed : level === "warn" ? t.headWarn : t.headDone
     panel.append(h("div", { class: `head ${level}`, text: head }))
     panel.append(h("div", { class: "rows" },
-      probRow("第三方隐私", o.result.thirdParty),
-      probRow("身份可链接", o.result.identityLinkable),
+      probRow(t.rowThirdParty, o.result.thirdParty),
+      probRow(t.rowIdentity, o.result.identityLinkable),
       h("div", { class: "row" },
-        h("span", { class: "label", text: "敏感类别" }),
-        h("span", { class: "val", text: categoryLabel(o.result.sensitiveCategory) })),
+        h("span", { class: "label", text: t.rowCategory }),
+        h("span", { class: "val", text: categoryLabel(o.result.sensitiveCategory, locale) })),
       h("div", { class: "row" },
-        h("span", { class: "label", text: "复核建议" }),
+        h("span", { class: "label", text: t.rowReview }),
         h("span", { class: "val" }, bar(o.result.reviewWorthiness), h("span", { text: `${o.result.reviewWorthiness.toFixed(1)}/3` }))),
       h("div", { class: "row" },
-        h("span", { class: "label", text: "发送对象" }),
-        h("span", { class: "val", text: config?.autoAudience ? describeAudienceZh(o.audience) : "未开启自动识别" }))))
-    panel.append(h("div", { class: "summary", text: `${getRiskSummary(o.result)}。` }))
-    const note = providerNote(o.result.source)
+        h("span", { class: "label", text: t.rowAudience }),
+        h("span", { class: "val", text: config?.autoAudience ? describeAudience(o.audience, locale) : t.audienceOff }))))
+    panel.append(h("div", { class: "summary", text: `${getRiskSummary(o.result, locale)}${t.summaryEnd}` }))
+    const note = providerNote(o.result.source, locale)
     if (note) panel.append(h("div", { class: "note", text: note }))
-    if (o.truncated) panel.append(h("div", { class: "note", text: `内容较长，仅检查了前 ${MAX_TEXT_LENGTH} 字。` }))
+    if (o.truncated) panel.append(h("div", { class: "note", text: t.truncated(MAX_TEXT_LENGTH) }))
   } else if (o.kind === "words") {
-    panel.append(h("div", { class: "head red", text: "🔴  命中自定义敏感词" }))
-    panel.append(h("div", { class: "summary", text: `命中：${o.words.join("、")}。此检查在本地完成，未上传任何内容。` }))
+    panel.append(h("div", { class: "head red", text: t.headWords }))
+    panel.append(h("div", { class: "summary", text: t.wordsHit(o.words.join(t.wordsSep)) }))
   } else if (o.kind === "error") {
-    panel.append(h("div", { class: "head error", text: "?  检查未完成" }))
-    panel.append(h("div", {
-      class: "summary",
-      text: o.reason === "no-key"
-        ? "尚未设置 API key，请在扩展弹窗中填写。本次未做检查，不代表内容安全。"
-        : "检查未完成，请确认 API key 和网络。本次未做检查，不代表内容安全。"
-    }))
+    panel.append(h("div", { class: "head error", text: t.headError }))
+    panel.append(h("div", { class: "summary", text: o.reason === "no-key" ? t.errorNoKey : t.errorFailed }))
   } else {
-    panel.append(h("div", { class: "head none", text: "未检查" }))
+    panel.append(h("div", { class: "head none", text: t.headSkipped }))
     panel.append(h("div", {
       class: "summary",
-      text: o.reason === "short" ? "内容较短且未涉及他人或敏感信息，未上传检查。" : o.reason === "empty" ? "输入框为空。" : "敏感字段（密码 / 支付 / 登录表单），不做处理。"
+      text: o.reason === "short" ? t.skippedShort : o.reason === "empty" ? t.skippedEmpty : t.skippedSensitive
     }))
   }
 
   const actions = h("div", { class: "actions" })
   if (mode.kind === "presend") {
-    const send = h("button", { text: "仍然发送" })
-    const back = h("button", { class: "primary", text: "我再看看" })
+    const send = h("button", { text: t.sendAnyway })
+    const back = h("button", { class: "primary", text: t.review })
     send.addEventListener("click", mode.onSend)
     back.addEventListener("click", mode.onBack)
     actions.append(send, back)
   } else {
-    const close = h("button", { class: "primary", text: "知道了" })
+    const close = h("button", { class: "primary", text: t.gotIt })
     close.addEventListener("click", () => ui.hidePanel())
     actions.append(close)
   }

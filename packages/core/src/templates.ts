@@ -1,6 +1,45 @@
 import type { AlertLevel, Audience, JevResultPublic, Provider, RiskBand } from "./types"
 
 // 所有 UI 文案都在这里 deterministic 生成，不调用任何生成式模型。
+// 文案函数都接受可选的 locale，缺省为中文。
+
+export type Locale = "zh" | "en"
+
+/** 浏览器 / 系统语言 → 支持的界面语言：中文系统用中文，其他一律英文 */
+export function pickLocale(lang: string | undefined): Locale {
+  return lang?.toLowerCase().startsWith("zh") ? "zh" : "en"
+}
+
+const T = {
+  zh: {
+    none: "无",
+    thirdParty: "可能包含第三方隐私信息",
+    identity: "内容可能帮助收件人识别具体人物",
+    category: (c: string) => `涉及${c}相关内容`,
+    review: "建议发送前再检查一遍",
+    sep: "；",
+    noRisk: "未检测到明显风险",
+    providerNote: (p: string) => `由 ${p} 通用模型估算，概率未经校准，仅供参考。`,
+    audienceUnknown: "未识别（用默认上下文）",
+    audienceDirect: "私聊 / 单个收件人",
+    audienceGroup: (size: string) => `群聊 / 多个收件人（${size}）`,
+    sizes: { small: "约 2–10 人", medium: "约 11–50 人", large: "50 人以上", unknown: "人数未知" } as Record<string, string>
+  },
+  en: {
+    none: "None",
+    thirdParty: "May reveal someone else's private information",
+    identity: "Could help recipients identify a specific person",
+    category: (c: string) => `Involves ${c.toLowerCase()} details`,
+    review: "Worth a second look before sending",
+    sep: "; ",
+    noRisk: "No obvious risk detected",
+    providerNote: (p: string) => `Estimated by a general-purpose ${p} model; probabilities are not calibrated.`,
+    audienceUnknown: "Not detected (using default context)",
+    audienceDirect: "Direct message / one recipient",
+    audienceGroup: (size: string) => `Group / multiple recipients (${size})`,
+    sizes: { small: "about 2–10 people", medium: "about 11–50 people", large: "50+ people", unknown: "size unknown" } as Record<string, string>
+  }
+}
 
 export const CATEGORY_LABELS: Record<string, string> = {
   health: "健康医疗",
@@ -11,37 +50,48 @@ export const CATEGORY_LABELS: Record<string, string> = {
   none: ""
 }
 
+export const CATEGORY_LABELS_EN: Record<string, string> = {
+  health: "Health",
+  financial: "Financial",
+  relationship: "Relationship",
+  location: "Location",
+  professional: "Work",
+  none: ""
+}
+
 type RiskInput = Pick<JevResultPublic, "thirdParty" | "identityLinkable" | "sensitiveCategory" | "reviewWorthiness"> &
   Partial<Pick<JevResultPublic, "source">>
 
-export function categoryLabel(category: string): string {
-  if (category === "none") return "无"
-  return CATEGORY_LABELS[category] || category
+export function categoryLabel(category: string, locale: Locale = "zh"): string {
+  if (category === "none") return T[locale].none
+  return (locale === "en" ? CATEGORY_LABELS_EN : CATEGORY_LABELS)[category] || category
 }
 
-function riskLines(result: RiskInput): string[] {
+function riskLines(result: RiskInput, locale: Locale = "zh"): string[] {
+  const t = T[locale]
   const lines: string[] = []
 
   if (result.thirdParty >= 0.8)
-    lines.push("可能包含第三方隐私信息")
+    lines.push(t.thirdParty)
 
   if (result.identityLinkable >= 0.75)
-    lines.push("内容可能帮助收件人识别具体人物")
+    lines.push(t.identity)
 
   // sensitiveCategory 只作为辅助信息展示，不单独触发警告
   // （用户向医生描述自己的病情也属于 health，类别本身不等于披露越界）
   if (result.sensitiveCategory !== "none" && result.reviewWorthiness >= 1.5)
-    lines.push(`涉及${categoryLabel(result.sensitiveCategory)}相关内容`)
+    lines.push(t.category(categoryLabel(result.sensitiveCategory, locale)))
 
   if (result.reviewWorthiness >= 2.4)
-    lines.push("建议发送前再检查一遍")
+    lines.push(t.review)
 
   return lines
 }
 
-export function getRiskSummary(result: RiskInput): string {
-  if (isLlmSource(result) && getAlertLevel(result) === "none") return "未检测到明显风险"
-  return riskLines(result).join("；") || "未检测到明显风险"
+export function getRiskSummary(result: RiskInput, locale: Locale = "zh"): string {
+  const t = T[locale]
+  if (isLlmSource(result) && getAlertLevel(result) === "none") return t.noRisk
+  return riskLines(result, locale).join(t.sep) || t.noRisk
 }
 
 /**
@@ -118,16 +168,18 @@ export const PROVIDER_LABELS: Record<Provider, string> = {
 }
 
 /** 非 Jev 的结果在面板上附带说明 */
-export function providerNote(source: Provider | undefined): string {
+export function providerNote(source: Provider | undefined, locale: Locale = "zh"): string {
   if (!source || source === "jev") return ""
-  return `由 ${PROVIDER_LABELS[source]} 通用模型估算，概率未经校准，仅供参考。`
+  return T[locale].providerNote(PROVIDER_LABELS[source])
 }
-
-const SIZE_ZH: Record<string, string> = { small: "约 2–10 人", medium: "约 11–50 人", large: "50 人以上", unknown: "人数未知" }
 
 /** 面板上显示的发送对象；未识别时说明用的是默认上下文 */
-export function describeAudienceZh(a: Audience | undefined): string {
-  if (!a) return "未识别（用默认上下文）"
-  if (a.kind === "direct") return "私聊 / 单个收件人"
-  return `群聊 / 多个收件人（${SIZE_ZH[a.size ?? "unknown"]}）`
+export function describeAudience(a: Audience | undefined, locale: Locale = "zh"): string {
+  const t = T[locale]
+  if (!a) return t.audienceUnknown
+  if (a.kind === "direct") return t.audienceDirect
+  return t.audienceGroup(t.sizes[a.size ?? "unknown"]!)
 }
+
+/** @deprecated 用 describeAudience(a, "zh") */
+export const describeAudienceZh = (a: Audience | undefined) => describeAudience(a, "zh")

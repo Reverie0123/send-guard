@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "Send Guard",
+    "description": "扩展名称"
+  },
+  "extDescription": {
+    "message": "发送前的隐私检查：判断消息是否透露他人隐私、能否认出具体的人，只在值得复核时提醒，不阻止发送。",
+    "description": "商店与 manifest 的简短说明，最多 132 字符"
+  }
+}

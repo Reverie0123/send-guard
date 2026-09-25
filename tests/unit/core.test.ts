@@ -3,8 +3,11 @@ import { describe, it } from "node:test"
 import {
   audienceFromCount,
   buildState,
+  categoryLabel,
+  describeAudience,
   describeAudienceZh,
   isAudience,
+  pickLocale,
   getAlertLevel,
   getRiskSummary,
   JevError,
@@ -132,6 +135,28 @@ describe("发送对象（粗粒度）", () => {
   it("面板文案", () => {
     assert.equal(describeAudienceZh(undefined), "未识别（用默认上下文）")
     assert.match(describeAudienceZh({ kind: "group", size: "large" }), /50 人以上/)
+  })
+})
+
+describe("界面语言", () => {
+  it("中文系统用中文，其余用英文", () => {
+    assert.equal(pickLocale("zh-CN"), "zh")
+    assert.equal(pickLocale("zh-TW"), "zh")
+    assert.equal(pickLocale("en-US"), "en")
+    assert.equal(pickLocale("ja"), "en")
+    assert.equal(pickLocale(undefined), "en")
+  })
+  it("英文风险摘要与中文一一对应", () => {
+    const r = score({ thirdParty: 0.9, identityLinkable: 0.8, sensitiveCategory: "health", reviewWorthiness: 2.6, source: "jev" })
+    assert.equal(getRiskSummary(r).split("；").length, getRiskSummary(r, "en").split("; ").length)
+    assert.match(getRiskSummary(r, "en"), /someone else's private information.*health details/i)
+    assert.equal(getRiskSummary(score({ source: "deepseek" }), "en"), "No obvious risk detected")
+  })
+  it("英文的发送对象、类别和来源说明", () => {
+    assert.equal(describeAudience({ kind: "direct" }, "en"), "Direct message / one recipient")
+    assert.match(describeAudience({ kind: "group", size: "medium" }, "en"), /11–50/)
+    assert.equal(categoryLabel("financial", "en"), "Financial")
+    assert.match(providerNote("deepseek", "en"), /not calibrated/)
   })
 })
 

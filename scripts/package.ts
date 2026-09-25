@@ -18,7 +18,7 @@ if (manifest.version !== rootVersion) {
   process.exit(1)
 }
 
-const files = ["manifest.json", "background.js", "content.js", "popup.js", "popup.html", "icons"]
+const files = ["manifest.json", "background.js", "content.js", "popup.js", "popup.html", "icons", "_locales"]
 for (const f of files) {
   if (!existsSync(join(DIST, f))) {
     console.error(`dist 缺少 ${f}，请先 npm run build`)

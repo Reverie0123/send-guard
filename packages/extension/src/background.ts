@@ -30,6 +30,7 @@ import type {
   Settings,
   TestConnectionResponse
 } from "./messages"
+import { t } from "./i18n"
 import { patternMatchesUrl } from "./sites"
 import { ChromeStorageAdapter } from "./storage-impl"
 
@@ -233,14 +234,14 @@ async function testConnection(): Promise<TestConnectionResponse> {
     return { ok: true }
   } catch (e) {
     if (e instanceof JevError) {
-      if (e.kind === "no-key") return { ok: false, reason: "尚未保存 API key" }
-      if (e.kind === "http" && e.status === 402) return { ok: false, reason: "账户余额不足" }
-      if (e.kind === "http" && (e.status === 401 || e.status === 403)) return { ok: false, reason: "API key 无效或无权限" }
-      if (e.kind === "http") return { ok: false, reason: `服务返回错误 ${e.status}` }
-      if (e.kind === "timeout") return { ok: false, reason: "请求超时" }
-      if (e.kind === "bad-response") return { ok: false, reason: "响应格式无法识别" }
+      if (e.kind === "no-key") return { ok: false, reason: t.testNoKey }
+      if (e.kind === "http" && e.status === 402) return { ok: false, reason: t.testBalance }
+      if (e.kind === "http" && (e.status === 401 || e.status === 403)) return { ok: false, reason: t.testInvalid }
+      if (e.kind === "http") return { ok: false, reason: t.testHttp(e.status) }
+      if (e.kind === "timeout") return { ok: false, reason: t.testTimeout }
+      if (e.kind === "bad-response") return { ok: false, reason: t.testBadResponse }
     }
-    return { ok: false, reason: "网络错误" }
+    return { ok: false, reason: t.testNetwork }
   }
 }
 

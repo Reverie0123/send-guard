@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html>
 <head>
   <meta charset="utf-8">
   <title>Send Guard</title>
@@ -50,30 +50,30 @@
   </header>
 
   <section class="switch">
-    <strong>启用 Send Guard</strong>
+    <strong data-i18n="enable"></strong>
     <input type="checkbox" id="enabled">
   </section>
 
   <section>
-    <h2>当前网站</h2>
+    <h2 data-i18n="currentSite"></h2>
     <div class="row">
       <span class="grow" id="siteName">—</span>
       <span class="tag" id="siteTag"></span>
     </div>
     <div class="row">
-      <button class="primary" id="enableSite" hidden>在此网站启用</button>
-      <button id="manualCheck" hidden>检查当前输入框</button>
+      <button class="primary" id="enableSite" hidden data-i18n="enableSite"></button>
+      <button id="manualCheck" hidden data-i18n="manualCheck"></button>
     </div>
     <div class="muted" id="siteMsg"></div>
   </section>
 
   <section>
-    <h2>检测服务</h2>
+    <h2 data-i18n="service"></h2>
     <div class="row">
       <select id="provider" class="grow">
-        <option value="jev">TypeSafe Jev（推荐，概率经过校准）</option>
-        <option value="deepseek">DeepSeek（临时替代）</option>
-        <option value="openrouter">OpenRouter（临时替代）</option>
+        <option value="jev" data-i18n="providerJev"></option>
+        <option value="deepseek" data-i18n="providerDeepseek"></option>
+        <option value="openrouter" data-i18n="providerOpenrouter"></option>
       </select>
     </div>
     <div class="muted" id="providerNote"></div>
@@ -84,48 +84,48 @@
       <input type="text" id="model" class="grow" spellcheck="false" maxlength="100">
     </div>
     <div class="row">
-      <button class="primary" id="saveKey">保存并测试连接</button>
+      <button class="primary" id="saveKey" data-i18n="saveKey"></button>
       <span class="muted" id="keyMsg"></span>
     </div>
   </section>
 
   <section>
-    <h2>触发模式</h2>
+    <h2 data-i18n="mode"></h2>
     <label class="choice"><input type="radio" name="mode" value="presend" id="modePresend">
-      <span>发送前检查（默认）<br><span class="muted">仅在已适配网站生效，点击发送时才上传</span></span></label>
+      <span><span data-i18n="modePresend"></span><br><span class="muted" data-i18n="modePresendHint"></span></span></label>
     <label class="choice"><input type="radio" name="mode" value="realtime" id="modeRealtime">
-      <span>实时检查<br><span class="muted">输入停止 1 秒后检查，只显示图标，不拦截发送</span></span></label>
+      <span><span data-i18n="modeRealtime"></span><br><span class="muted" data-i18n="modeRealtimeHint"></span></span></label>
     <label class="choice consent" id="consentBox" hidden><input type="checkbox" id="consent">
-      <span>我已知晓：开启后，<b>未发送的草稿内容</b>会在输入停止时上传至 TypeSafe API。</span></label>
+      <span data-i18n="consent"></span></label>
   </section>
 
   <section>
-    <h2>收件人默认上下文</h2>
+    <h2 data-i18n="recipient"></h2>
     <div class="row">
-      <input type="text" id="recipientContext" class="grow" placeholder="例如：我的同事" maxlength="200">
+      <input type="text" id="recipientContext" class="grow" data-i18n-ph="recipientPlaceholder" maxlength="200">
       <select id="relationship" style="width: 100px">
-        <option value="">关系未设置</option>
-        <option value="colleague">同事</option>
-        <option value="friend">朋友</option>
-        <option value="stranger">陌生人</option>
-        <option value="group">群组</option>
-        <option value="other">其他</option>
+        <option value="" data-i18n="relNone"></option>
+        <option value="colleague" data-i18n="relColleague"></option>
+        <option value="friend" data-i18n="relFriend"></option>
+        <option value="stranger" data-i18n="relStranger"></option>
+        <option value="group" data-i18n="relGroup"></option>
+        <option value="other" data-i18n="relOther"></option>
       </select>
     </div>
     <label class="choice"><input type="checkbox" id="autoAudience">
-      <span>自动识别发送对象<br><span class="muted">识别当前是私聊还是群聊、大约多少人，一起发给检测服务帮助判断。只传这两项，不读取也不上传名字、邮箱、用户名</span></span></label>
+      <span><span data-i18n="autoAudience"></span><br><span class="muted" data-i18n="autoAudienceHint"></span></span></label>
   </section>
 
   <section>
-    <h2>自定义敏感词</h2>
-    <textarea id="sensitiveWords" placeholder="逗号分隔，例如：身份证, 住院, 张三"></textarea>
-    <div class="muted">只在本地匹配，命中时直接标红，不发任何请求</div>
+    <h2 data-i18n="words"></h2>
+    <textarea id="sensitiveWords" data-i18n-ph="wordsPlaceholder"></textarea>
+    <div class="muted" data-i18n="wordsHint"></div>
   </section>
 
   <section>
-    <h2>已启用网站</h2>
+    <h2 data-i18n="sites"></h2>
     <ul id="sites"></ul>
-    <div class="muted" id="sitesEmpty">还没有启用任何网站</div>
+    <div class="muted" id="sitesEmpty" data-i18n="sitesEmpty"></div>
   </section>
 
   <footer>
