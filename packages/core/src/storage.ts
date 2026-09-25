@@ -1,0 +1,32 @@
+/**
+ * 存储抽象。扩展版用 chrome.storage.local 实现，桌面版后续用 electron-store 实现。
+ * 只存字符串和数字，结构化数据由调用方自行 JSON 序列化。
+ */
+export interface StorageAdapter {
+  get(key: string): Promise<string | null>
+  set(key: string, value: string): Promise<void>
+  getNumber(key: string): Promise<number>
+  setNumber(key: string, value: number): Promise<void>
+}
+
+export const STORAGE_KEYS = {
+  apiKey: "apiKey",
+  enabled: "enabled",                     // "1" | "0"，缺省视为开启
+  mode: "mode",                           // "presend" | "realtime"
+  realtimeConsent: "realtimeConsent",     // "1" 表示用户已确认草稿会实时上传
+  recipientContext: "recipientContext",
+  relationship: "relationship",
+  sensitiveWords: "sensitiveWords",       // 逗号分隔原文
+  rulesVersion: "rulesVersion"            // 影响判断的设置每变一次 +1，用于缓存失效
+} as const
+
+export type StatsField = "count" | "input" | "output"
+
+/** 按月统计的 key，例如 stats:2026-09:input */
+export function statsKey(month: string, field: StatsField): string {
+  return `stats:${month}:${field}`
+}
+
+export function currentMonth(now: Date = new Date()): string {
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+}

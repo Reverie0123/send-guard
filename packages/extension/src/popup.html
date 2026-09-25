@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>Send Guard</title>
+  <style>
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0; width: 340px; font: 13px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+      color: #1a202c; background: #fff;
+    }
+    header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid #edf2f7; }
+    header img { width: 22px; height: 22px; }
+    header h1 { font-size: 15px; margin: 0; flex: 1; }
+    header .ver { color: #a0aec0; font-size: 12px; }
+    section { padding: 10px 14px; border-bottom: 1px solid #edf2f7; }
+    h2 { font-size: 12px; font-weight: 600; color: #4a5568; margin: 0 0 6px; }
+    input[type=text], input[type=password], textarea, select {
+      width: 100%; font: inherit; padding: 6px 8px; border: 1px solid #cbd5e0; border-radius: 6px; background: #fff; color: inherit;
+    }
+    textarea { resize: vertical; min-height: 48px; }
+    button { font: inherit; padding: 5px 12px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; cursor: pointer; color: #2d3748; }
+    button.primary { background: #2b6cb0; border-color: #2b6cb0; color: #fff; }
+    button:disabled { opacity: .5; cursor: default; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    .row + .row { margin-top: 6px; }
+    .grow { flex: 1; }
+    .muted { color: #718096; font-size: 12px; }
+    .ok { color: #2f855a; }
+    .bad { color: #c53030; }
+    .tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: #edf2f7; color: #4a5568; white-space: nowrap; }
+    .tag.verified { background: #ebf8ff; color: #2b6cb0; }
+    label.choice { display: flex; gap: 6px; align-items: flex-start; margin: 3px 0; cursor: pointer; }
+    label.choice input { margin-top: 3px; }
+    .consent { margin: 4px 0 0 22px; padding: 6px 8px; background: #fffaf0; border: 1px solid #fbd38d; border-radius: 6px; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    li { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+    li .origin { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    li button { padding: 1px 8px; font-size: 12px; }
+    footer { padding: 10px 14px; color: #4a5568; font-size: 12px; background: #f7fafc; }
+    .switch { display: flex; align-items: center; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="icons/icon.svg" alt="">
+    <h1>Send Guard</h1>
+    <span class="ver" id="version"></span>
+  </header>
+
+  <section class="switch">
+    <strong>启用 Send Guard</strong>
+    <input type="checkbox" id="enabled">
+  </section>
+
+  <section>
+    <h2>当前网站</h2>
+    <div class="row">
+      <span class="grow" id="siteName">—</span>
+      <span class="tag" id="siteTag"></span>
+    </div>
+    <div class="row">
+      <button class="primary" id="enableSite" hidden>在此网站启用</button>
+      <button id="manualCheck" hidden>检查当前输入框</button>
+    </div>
+    <div class="muted" id="siteMsg"></div>
+  </section>
+
+  <section>
+    <h2>TypeSafe API Key</h2>
+    <div class="row">
+      <input type="password" id="apiKey" class="grow" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="row">
+      <button class="primary" id="saveKey">保存并测试连接</button>
+      <span class="muted" id="keyMsg"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>触发模式</h2>
+    <label class="choice"><input type="radio" name="mode" value="presend" id="modePresend">
+      <span>发送前检查（默认）<br><span class="muted">仅在已适配网站生效，点击发送时才上传</span></span></label>
+    <label class="choice"><input type="radio" name="mode" value="realtime" id="modeRealtime">
+      <span>实时检查<br><span class="muted">输入停止 1 秒后检查，只显示图标，不拦截发送</span></span></label>
+    <label class="choice consent" id="consentBox" hidden><input type="checkbox" id="consent">
+      <span>我已知晓：开启后，<b>未发送的草稿内容</b>会在输入停止时上传至 TypeSafe API。</span></label>
+  </section>
+
+  <section>
+    <h2>收件人默认上下文</h2>
+    <div class="row">
+      <input type="text" id="recipientContext" class="grow" placeholder="例如：我的同事" maxlength="200">
+      <select id="relationship" style="width: 100px">
+        <option value="">关系未设置</option>
+        <option value="colleague">同事</option>
+        <option value="friend">朋友</option>
+        <option value="stranger">陌生人</option>
+        <option value="group">群组</option>
+        <option value="other">其他</option>
+      </select>
+    </div>
+    <div class="muted">不会自动读取收件人地址或用户名，只使用这里填写的内容</div>
+  </section>
+
+  <section>
+    <h2>自定义敏感词</h2>
+    <textarea id="sensitiveWords" placeholder="逗号分隔，例如：身份证, 住院, 张三"></textarea>
+    <div class="muted">只在本地匹配，命中时直接标红，不发任何请求</div>
+  </section>
+
+  <section>
+    <h2>已启用网站</h2>
+    <ul id="sites"></ul>
+    <div class="muted" id="sitesEmpty">还没有启用任何网站</div>
+  </section>
+
+  <footer>
+    <div id="statsLine"></div>
+    <div id="costLine"></div>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

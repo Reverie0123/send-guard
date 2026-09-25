@@ -1,0 +1,8 @@
+{
+  "name": "@send-guard/extension",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@send-guard/core": "*"
+  }
+}
