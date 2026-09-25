@@ -4,6 +4,7 @@ import {
   getAlertLevel,
   getRiskSummary,
   MAX_TEXT_LENGTH,
+  providerNote,
   riskBand,
   type JevResultPublic
 } from "@send-guard/core"
@@ -442,6 +443,8 @@ function buildPanel(o: Outcome, mode: PanelMode): HTMLElement {
         h("span", { class: "label", text: "复核建议" }),
         h("span", { class: "val" }, bar(o.result.reviewWorthiness), h("span", { text: `${o.result.reviewWorthiness.toFixed(1)}/3` })))))
     panel.append(h("div", { class: "summary", text: `${getRiskSummary(o.result)}。` }))
+    const note = providerNote(o.result.source)
+    if (note) panel.append(h("div", { class: "note", text: note }))
     if (o.truncated) panel.append(h("div", { class: "note", text: `内容较长，仅检查了前 ${MAX_TEXT_LENGTH} 字。` }))
   } else if (o.kind === "words") {
     panel.append(h("div", { class: "head red", text: "🔴  命中自定义敏感词" }))

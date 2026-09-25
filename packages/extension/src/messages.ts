@@ -1,4 +1,4 @@
-import type { JevResultPublic, Relationship } from "@send-guard/core"
+import type { JevResultPublic, LlmProvider, Provider, Relationship } from "@send-guard/core"
 
 export type TriggerMode = "presend" | "realtime"
 
@@ -20,6 +20,7 @@ export interface ConfigResponse {
 
 export interface Settings {
   enabled: boolean
+  provider: Provider
   mode: TriggerMode
   realtimeConsent: boolean
   recipientContext: string
@@ -32,11 +33,16 @@ export interface MonthStats {
   count: number
   input: number
   output: number
+  jevInput: number
+  deepseekInput: number
+  deepseekOutput: number
+  costUsd: number                 // OpenRouter 返回的实际费用合计
 }
 
 export interface PopupState {
   settings: Settings
-  hasKey: boolean
+  hasKey: Record<Provider, boolean>
+  models: Record<LlmProvider, string>   // 用户自定义模型名，空串表示用默认
   sites: string[]                 // 已授权的 origin pattern
   stats: MonthStats
 }
@@ -55,7 +61,8 @@ export type AnalyzeResponse =
 export type PopupRequest =
   | { type: "getPopupState" }
   | { type: "saveSettings"; settings: Partial<Settings> }
-  | { type: "saveApiKey"; apiKey: string }
+  | { type: "saveApiKey"; provider: Provider; apiKey: string }
+  | { type: "saveModel"; provider: LlmProvider; model: string }
   | { type: "testConnection" }
   | { type: "removeSite"; origin: string }
 

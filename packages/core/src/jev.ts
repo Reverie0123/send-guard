@@ -124,6 +124,7 @@ export function parseJevResponse(json: unknown): JevResult {
     sensitiveCategory: readChoice(answers.sensitive_category),
     // Score：{ type: "score", score: 1.6, legend, probabilities, confidence }，可以落在两级之间
     reviewWorthiness: readScore(answers.review_worthiness),
+    source: "jev",
     raw: json
   }
 
@@ -153,7 +154,7 @@ function readScore(answer: unknown): number {
   return s
 }
 
-function readUsage(usage: unknown): TokenUsage | undefined {
+export function readUsage(usage: unknown): TokenUsage | undefined {
   if (!isRecord(usage)) return undefined
   const input = usage.input_tokens
   const output = usage.output_tokens
@@ -161,6 +162,6 @@ function readUsage(usage: unknown): TokenUsage | undefined {
   return { input, output }
 }
 
-function isRecord(v: unknown): v is Record<string, unknown> {
+export function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v)
 }

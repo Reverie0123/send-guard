@@ -1,4 +1,15 @@
-import { ESTIMATE_USD_PER_M_INPUT, estimateCostUsd, formatUsd } from "@send-guard/core"
+import {
+  DEEPSEEK_CNY_PER_M_INPUT,
+  DEEPSEEK_CNY_PER_M_OUTPUT,
+  ESTIMATE_USD_PER_M_INPUT,
+  estimateCostUsd,
+  estimateDeepseekCny,
+  formatCny,
+  formatUsd,
+  LLM_PRESETS,
+  PROVIDER_LABELS,
+  type Provider
+} from "@send-guard/core"
 import type { ManualCheckResponse, PopupRequest, PopupState, Settings, TestConnectionResponse } from "./messages"
 import { patternMatchesUrl, SUPPORTED_SITES, supportedSiteFor } from "./sites"
 
@@ -12,7 +23,11 @@ const el = {
   enableSite: $<HTMLButtonElement>("enableSite"),
   manualCheck: $<HTMLButtonElement>("manualCheck"),
   siteMsg: $("siteMsg"),
+  provider: $<HTMLSelectElement>("provider"),
+  providerNote: $("providerNote"),
   apiKey: $<HTMLInputElement>("apiKey"),
+  modelRow: $("modelRow"),
+  model: $<HTMLInputElement>("model"),
   saveKey: $<HTMLButtonElement>("saveKey"),
   keyMsg: $("keyMsg"),
   modePresend: $<HTMLInputElement>("modePresend"),
@@ -50,7 +65,8 @@ function render(): void {
   const s = state.settings
   el.version.textContent = `v${chrome.runtime.getManifest().version}`
   el.enabled.checked = s.enabled
-  el.apiKey.placeholder = state.hasKey ? "已保存（输入新 key 可覆盖）" : "粘贴你的 API key"
+  el.provider.value = s.provider
+  renderProvider()
 
   el.modePresend.checked = s.mode === "presend" || !s.realtimeConsent
   el.modeRealtime.checked = s.mode === "realtime" && s.realtimeConsent
@@ -64,6 +80,29 @@ function render(): void {
   renderCurrentSite()
   renderSites()
   renderStats()
+}
+
+const PROVIDER_NOTES: Record<Provider, string> = {
+  jev: "消息会发送到 TypeSafe（api.typesafe.ai）做检查。",
+  deepseek: "消息会发送到 DeepSeek 官方（api.deepseek.com）做检查。通用大模型给出的概率未经校准，仅作临时替代。",
+  openrouter: "消息会经 OpenRouter 转发给所选模型的服务商做检查。通用大模型给出的概率未经校准，仅作临时替代。"
+}
+
+function renderProvider(): void {
+  const p = el.provider.value as Provider
+  el.providerNote.textContent = PROVIDER_NOTES[p]
+  el.apiKey.value = ""
+  el.apiKey.placeholder = state.hasKey[p]
+    ? `${PROVIDER_LABELS[p]} key 已保存（输入新 key 可覆盖）`
+    : `粘贴你的 ${PROVIDER_LABELS[p]} API key`
+  el.keyMsg.textContent = ""
+  if (p === "jev") {
+    el.modelRow.hidden = true
+    return
+  }
+  el.modelRow.hidden = false
+  el.model.value = state.models[p]
+  el.model.placeholder = `模型（默认 ${LLM_PRESETS[p].defaultModel}）`
 }
 
 function renderCurrentSite(): void {
@@ -121,27 +160,47 @@ function renderSites(): void {
 }
 
 function renderStats(): void {
-  const { count, input, output } = state.stats
+  const { count, input, output, jevInput, deepseekInput, deepseekOutput, costUsd } = state.stats
   el.statsLine.textContent = `本月已检查 ${count} 条，使用 input ${input} / output ${output} tokens`
-  // 当前 API 响应没有金额字段，只能估算
-  el.costLine.textContent = `估算费用约 ${formatUsd(estimateCostUsd(input))}（按 $${ESTIMATE_USD_PER_M_INPUT}/1M input tokens 估算）`
+  const lines: string[] = []
+  if (costUsd > 0) lines.push(`OpenRouter 实际费用 ${formatUsd(costUsd)}`)
+  if (deepseekInput > 0) {
+    lines.push(`DeepSeek 估算费用约 ${formatCny(estimateDeepseekCny(deepseekInput, deepseekOutput))}` +
+      `（按高峰价 ¥${DEEPSEEK_CNY_PER_M_INPUT}/1M input、¥${DEEPSEEK_CNY_PER_M_OUTPUT}/1M output 估算）`)
+  }
+  // Jev 响应没有金额字段，只能估算；没有任何用量时也显示这一行
+  if (jevInput > 0 || lines.length === 0) {
+    lines.push(`Jev 估算费用约 ${formatUsd(estimateCostUsd(jevInput))}（按 $${ESTIMATE_USD_PER_M_INPUT}/1M input tokens 估算）`)
+  }
+  el.costLine.textContent = lines.join("；")
 }
 
 // ---------- 事件 ----------
 
 el.enabled.addEventListener("change", () => saveSettings({ enabled: el.enabled.checked }))
 
+el.provider.addEventListener("change", async () => {
+  const provider = el.provider.value as Provider
+  state.settings.provider = provider
+  renderProvider()
+  await saveSettings({ provider })
+})
+
 el.saveKey.addEventListener("click", async () => {
+  const provider = el.provider.value as Provider
   const key = el.apiKey.value.trim()
   el.saveKey.disabled = true
   el.keyMsg.className = "muted"
   try {
     if (key) {
-      await send({ type: "saveApiKey", apiKey: key })
-      el.apiKey.value = ""
-      state.hasKey = true
-      render()
+      await send({ type: "saveApiKey", provider, apiKey: key })
+      state.hasKey[provider] = true
     }
+    if (provider !== "jev" && el.model.value.trim() !== state.models[provider]) {
+      await send({ type: "saveModel", provider, model: el.model.value })
+      state.models[provider] = el.model.value.trim()
+    }
+    renderProvider()
     el.keyMsg.textContent = "测试中…"
     const r = await send<TestConnectionResponse>({ type: "testConnection" })
     el.keyMsg.textContent = r.ok ? "连接成功" : r.reason

@@ -1,11 +1,19 @@
 import {
   analyze,
+  analyzeWithLlm,
   currentMonth,
   JevError,
+  PROVIDERS,
+  providerKeyName,
+  providerModelName,
   RELATIONSHIPS,
   STORAGE_KEYS,
   statsKey,
+  type AnalyzeInput,
+  type JevResult,
   type JevResultPublic,
+  type LlmProvider,
+  type Provider,
   type Relationship
 } from "@send-guard/core"
 import type {
@@ -25,13 +33,15 @@ import { ChromeStorageAdapter } from "./storage-impl"
 
 const storage = new ChromeStorageAdapter()
 const SCRIPT_ID = "send-guard-content"
-const API_ORIGIN = "https://api.typesafe.ai/*"
+/** manifest 里固定声明的检测服务域名，不算作用户启用的网站 */
+const API_ORIGINS = ["https://api.typesafe.ai/*", "https://api.deepseek.com/*", "https://openrouter.ai/*"]
 
 // ---------- 设置 ----------
 
 async function loadSettings(): Promise<Settings> {
-  const [enabled, mode, consent, recipientContext, relationship, sensitiveWords] = await Promise.all([
+  const [enabled, provider, mode, consent, recipientContext, relationship, sensitiveWords] = await Promise.all([
     storage.get(STORAGE_KEYS.enabled),
+    storage.get(STORAGE_KEYS.provider),
     storage.get(STORAGE_KEYS.mode),
     storage.get(STORAGE_KEYS.realtimeConsent),
     storage.get(STORAGE_KEYS.recipientContext),
@@ -40,6 +50,7 @@ async function loadSettings(): Promise<Settings> {
   ])
   return {
     enabled: enabled !== "0",
+    provider: PROVIDERS.includes(provider as Provider) ? (provider as Provider) : "jev",
     mode: mode === "realtime" ? "realtime" : "presend",
     realtimeConsent: consent === "1",
     recipientContext: recipientContext ?? "",
@@ -71,6 +82,10 @@ async function saveSettings(patch: Partial<Settings>): Promise<void> {
   if (patch.mode !== undefined) await storage.set(STORAGE_KEYS.mode, patch.mode)
 
   let rulesChanged = false
+  if (patch.provider !== undefined && PROVIDERS.includes(patch.provider)) {
+    await storage.set(STORAGE_KEYS.provider, patch.provider)
+    rulesChanged = true // 换了检测服务，旧缓存作废
+  }
   if (patch.recipientContext !== undefined) {
     await storage.set(STORAGE_KEYS.recipientContext, patch.recipientContext.trim().slice(0, 200))
     rulesChanged = true
@@ -95,34 +110,56 @@ async function saveSettings(patch: Partial<Settings>): Promise<void> {
 
 let statsChain: Promise<void> = Promise.resolve()
 
-function recordUsage(usage: JevResultPublic["tokenUsage"], countAsCheck: boolean): Promise<void> {
+function recordUsage(result: JevResultPublic, countAsCheck: boolean): Promise<void> {
   statsChain = statsChain.then(async () => {
     const month = currentMonth()
-    if (countAsCheck) {
-      const k = statsKey(month, "count")
-      await storage.setNumber(k, (await storage.getNumber(k)) + 1)
+    const add = async (field: Parameters<typeof statsKey>[1], n: number) => {
+      const k = statsKey(month, field)
+      await storage.setNumber(k, (await storage.getNumber(k)) + n)
     }
+    if (countAsCheck) await add("count", 1)
+    const usage = result.tokenUsage
     if (usage) {
-      const ki = statsKey(month, "input")
-      const ko = statsKey(month, "output")
-      await storage.setNumber(ki, (await storage.getNumber(ki)) + usage.input)
-      await storage.setNumber(ko, (await storage.getNumber(ko)) + usage.output)
+      await add("input", usage.input)
+      await add("output", usage.output)
+      if (result.source === "jev") await add("jevInput", usage.input)
+      if (result.source === "deepseek") {
+        await add("deepseekInput", usage.input)
+        await add("deepseekOutput", usage.output)
+      }
     }
+    if (result.costUsd !== undefined) await add("costMicroUsd", Math.round(result.costUsd * 1_000_000))
   }).catch(() => {})
   return statsChain
 }
 
 async function loadStats(): Promise<MonthStats> {
   const month = currentMonth()
-  const [count, input, output] = await Promise.all([
-    storage.getNumber(statsKey(month, "count")),
-    storage.getNumber(statsKey(month, "input")),
-    storage.getNumber(statsKey(month, "output"))
-  ])
-  return { month, count, input, output }
+  const fields = ["count", "input", "output", "jevInput", "deepseekInput", "deepseekOutput", "costMicroUsd"] as const
+  const [count, input, output, jevInput, deepseekInput, deepseekOutput, costMicroUsd] =
+    await Promise.all(fields.map(f => storage.getNumber(statsKey(month, f))))
+  return {
+    month,
+    count: count!,
+    input: input!,
+    output: output!,
+    jevInput: jevInput!,
+    deepseekInput: deepseekInput!,
+    deepseekOutput: deepseekOutput!,
+    costUsd: costMicroUsd! / 1_000_000
+  }
 }
 
 // ---------- 分析请求（含请求 ID 与取消） ----------
+
+/** 按当前选择的检测服务调用。key 只在 background 读取。 */
+async function runAnalysis(provider: Provider, input: AnalyzeInput): Promise<JevResult> {
+  const apiKey = await storage.get(providerKeyName(provider))
+  if (!apiKey) throw new JevError("no-key")
+  if (provider === "jev") return analyze(input, apiKey)
+  const model = (await storage.get(providerModelName(provider))) ?? ""
+  return analyzeWithLlm(provider, input, apiKey, model || undefined)
+}
 
 /** 已收到取消消息的请求 ID。未发出的不再发出；已发出的返回后丢弃。 */
 const cancelled = new Set<string>()
@@ -150,24 +187,18 @@ async function handleAnalyze(requestId: string, text: string, sender: chrome.run
     const hostname = await senderAllowedHost(sender)
     if (!hostname) return { requestId, error: true, reason: "revoked" }
 
-    const apiKey = await storage.get(STORAGE_KEYS.apiKey)
-    if (!apiKey) return { requestId, error: true, reason: "no-key" }
-
     const s = await loadSettings()
     if (cancelled.has(requestId)) return { requestId, error: true, reason: "cancelled" }
 
-    const result = await analyze(
-      {
-        text,
-        recipientContext: s.recipientContext || undefined,
-        relationship: s.relationship || undefined,
-        site: hostname
-      },
-      apiKey
-    )
+    const result = await runAnalysis(s.provider, {
+      text,
+      recipientContext: s.recipientContext || undefined,
+      relationship: s.relationship || undefined,
+      site: hostname
+    })
 
     // 请求已经花了 token，统计照记；但已取消的结果直接丢弃，不回给页面
-    await recordUsage(result.tokenUsage, !cancelled.has(requestId))
+    await recordUsage(result, !cancelled.has(requestId))
     if (cancelled.has(requestId)) return { requestId, error: true, reason: "cancelled" }
     return { requestId, ok: true, result: stripRaw(result) }
   } catch (e) {
@@ -179,14 +210,15 @@ async function handleAnalyze(requestId: string, text: string, sender: chrome.run
 }
 
 async function testConnection(): Promise<TestConnectionResponse> {
-  const apiKey = await storage.get(STORAGE_KEYS.apiKey)
-  if (!apiKey) return { ok: false, reason: "尚未保存 API key" }
+  const { provider } = await loadSettings()
   try {
-    const r = await analyze({ text: "Hi, see you at the meeting tomorrow.", site: "connection-test" }, apiKey)
-    await recordUsage(r.tokenUsage, false)
+    const r = await runAnalysis(provider, { text: "Hi, see you at the meeting tomorrow.", site: "connection-test" })
+    await recordUsage(r, false)
     return { ok: true }
   } catch (e) {
     if (e instanceof JevError) {
+      if (e.kind === "no-key") return { ok: false, reason: "尚未保存 API key" }
+      if (e.kind === "http" && e.status === 402) return { ok: false, reason: "账户余额不足" }
       if (e.kind === "http" && (e.status === 401 || e.status === 403)) return { ok: false, reason: "API key 无效或无权限" }
       if (e.kind === "http") return { ok: false, reason: `服务返回错误 ${e.status}` }
       if (e.kind === "timeout") return { ok: false, reason: "请求超时" }
@@ -200,7 +232,7 @@ async function testConnection(): Promise<TestConnectionResponse> {
 
 async function siteOrigins(): Promise<string[]> {
   const { origins = [] } = await chrome.permissions.getAll()
-  return origins.filter(o => o !== API_ORIGIN)
+  return origins.filter(o => !API_ORIGINS.includes(o))
 }
 
 let syncChain: Promise<void> = Promise.resolve()
@@ -244,7 +276,7 @@ async function broadcast(msg: ContentPush): Promise<void> {
 }
 
 chrome.permissions.onAdded.addListener(async perms => {
-  const added = (perms.origins ?? []).filter(o => o !== API_ORIGIN)
+  const added = (perms.origins ?? []).filter(o => !API_ORIGINS.includes(o))
   await syncContentScripts()
   await injectIntoOpenTabs(added)
 })
@@ -308,14 +340,32 @@ chrome.runtime.onMessage.addListener((msg: ContentRequest | PopupRequest, sender
     case "getPopupState":
       return reply((async (): Promise<PopupState> => ({
         settings: await loadSettings(),
-        hasKey: !!(await storage.get(STORAGE_KEYS.apiKey)),
+        hasKey: Object.fromEntries(await Promise.all(
+          PROVIDERS.map(async p => [p, !!(await storage.get(providerKeyName(p)))] as const)
+        )) as Record<Provider, boolean>,
+        models: {
+          deepseek: (await storage.get(providerModelName("deepseek"))) ?? "",
+          openrouter: (await storage.get(providerModelName("openrouter"))) ?? ""
+        },
         sites: await siteOrigins(),
         stats: await loadStats()
       }))())
     case "saveSettings":
       return reply(saveSettings(msg.settings).then(() => true))
     case "saveApiKey":
-      return reply(storage.set(STORAGE_KEYS.apiKey, msg.apiKey.trim()).then(() => true))
+      if (!PROVIDERS.includes(msg.provider)) return false
+      return reply(storage.set(providerKeyName(msg.provider), msg.apiKey.trim()).then(() => true))
+    case "saveModel": {
+      if (msg.provider !== "deepseek" && msg.provider !== "openrouter") return false
+      const provider: LlmProvider = msg.provider
+      return reply((async () => {
+        await storage.set(providerModelName(provider), msg.model.trim().slice(0, 100))
+        const v = await storage.getNumber(STORAGE_KEYS.rulesVersion)
+        await storage.setNumber(STORAGE_KEYS.rulesVersion, v + 1)
+        await broadcast({ type: "configChanged", config: await loadContentConfig() })
+        return true
+      })())
+    }
     case "testConnection":
       return reply(testConnection())
     case "removeSite":

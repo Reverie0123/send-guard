@@ -1,4 +1,4 @@
-import type { AlertLevel, JevResultPublic, RiskBand } from "./types"
+import type { AlertLevel, JevResultPublic, Provider, RiskBand } from "./types"
 
 // 所有 UI 文案都在这里 deterministic 生成，不调用任何生成式模型。
 
@@ -71,4 +71,29 @@ export function estimateCostUsd(inputTokens: number): number {
 export function formatUsd(v: number): string {
   if (v > 0 && v < 0.01) return "<$0.01"
   return `$${v.toFixed(2)}`
+}
+
+/** DeepSeek 不返回金额，按官方高峰价估算（上限）：输入 ¥2/M（缓存未命中）、输出 ¥8/M */
+export const DEEPSEEK_CNY_PER_M_INPUT = 2
+export const DEEPSEEK_CNY_PER_M_OUTPUT = 8
+
+export function estimateDeepseekCny(input: number, output: number): number {
+  return (input / 1_000_000) * DEEPSEEK_CNY_PER_M_INPUT + (output / 1_000_000) * DEEPSEEK_CNY_PER_M_OUTPUT
+}
+
+export function formatCny(v: number): string {
+  if (v > 0 && v < 0.01) return "<¥0.01"
+  return `¥${v.toFixed(2)}`
+}
+
+export const PROVIDER_LABELS: Record<Provider, string> = {
+  jev: "TypeSafe Jev",
+  deepseek: "DeepSeek",
+  openrouter: "OpenRouter"
+}
+
+/** 非 Jev 的结果在面板上附带说明 */
+export function providerNote(source: Provider | undefined): string {
+  if (!source || source === "jev") return ""
+  return `由 ${PROVIDER_LABELS[source]} 通用模型估算，概率未经校准，仅供参考。`
 }

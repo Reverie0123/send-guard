@@ -68,9 +68,20 @@
   </section>
 
   <section>
-    <h2>TypeSafe API Key</h2>
+    <h2>检测服务</h2>
+    <div class="row">
+      <select id="provider" class="grow">
+        <option value="jev">TypeSafe Jev（推荐，概率经过校准）</option>
+        <option value="deepseek">DeepSeek（临时替代）</option>
+        <option value="openrouter">OpenRouter（临时替代）</option>
+      </select>
+    </div>
+    <div class="muted" id="providerNote"></div>
     <div class="row">
       <input type="password" id="apiKey" class="grow" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="row" id="modelRow">
+      <input type="text" id="model" class="grow" spellcheck="false" maxlength="100">
     </div>
     <div class="row">
       <button class="primary" id="saveKey">保存并测试连接</button>

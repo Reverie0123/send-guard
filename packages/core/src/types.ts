@@ -31,9 +31,16 @@ export interface JevResult {
   identityLinkable: number        // Noul，P(yes)，0–1
   sensitiveCategory: string       // Choice 结果
   reviewWorthiness: number        // Score，可为小数，0–3
-  tokenUsage?: TokenUsage         // 来自 Jev 响应的 usage 字段，可能不存在
+  tokenUsage?: TokenUsage         // 来自响应的 usage 字段，可能不存在
+  costUsd?: number                // 服务端返回的实际费用（OpenRouter 提供；Jev 不提供）
+  source?: Provider               // 由哪个检测服务给出
   raw: Record<string, unknown>    // 仅在内存中使用，不持久化，不打日志
 }
+
+/** 检测服务。jev = TypeSafe Jev（校准概率）；deepseek / openrouter = 通用大模型临时替代（概率未校准） */
+export type Provider = "jev" | "deepseek" | "openrouter"
+
+export const PROVIDERS: readonly Provider[] = ["jev", "deepseek", "openrouter"]
 
 /** 去掉 raw 之后可以跨进程传递的结果 */
 export type JevResultPublic = Omit<JevResult, "raw">
