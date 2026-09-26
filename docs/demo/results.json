@@ -1,0 +1,254 @@
+{
+ "我同事张三上周被确诊抑郁症，现在住在朝阳医院|none": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.95,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "我同事张三上周被确诊抑郁症，现在住在朝阳医院|direct:": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.95,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "我同事张三上周被确诊抑郁症，现在住在朝阳医院|group:small": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.95,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "我同事张三上周被确诊抑郁症，现在住在朝阳医院|group:unknown": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.95,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "明天下午三点的项目评审会改到二号会议室，记得带上周报|none": {
+  "thirdParty": 0.05,
+  "identityLinkable": 0,
+  "sensitiveCategory": "professional",
+  "reviewWorthiness": 0.2,
+  "source": "deepseek"
+ },
+ "明天下午三点的项目评审会改到二号会议室，记得带上周报|direct:": {
+  "thirdParty": 0.05,
+  "identityLinkable": 0.05,
+  "sensitiveCategory": "professional",
+  "reviewWorthiness": 0.2,
+  "source": "deepseek"
+ },
+ "明天下午三点的项目评审会改到二号会议室，记得带上周报|group:small": {
+  "thirdParty": 0.05,
+  "identityLinkable": 0.05,
+  "sensitiveCategory": "professional",
+  "reviewWorthiness": 0.3,
+  "source": "deepseek"
+ },
+ "明天下午三点的项目评审会改到二号会议室，记得带上周报|group:unknown": {
+  "thirdParty": 0.1,
+  "identityLinkable": 0.05,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.2,
+  "source": "deepseek"
+ },
+ "咱们班那位'学霸'这次终于不用补考了，恭喜恭喜|none": {
+  "thirdParty": 0.7,
+  "identityLinkable": 0.55,
+  "sensitiveCategory": "professional",
+  "reviewWorthiness": 1.8,
+  "source": "deepseek"
+ },
+ "咱们班那位'学霸'这次终于不用补考了，恭喜恭喜|direct:": {
+  "thirdParty": 0.7,
+  "identityLinkable": 0.6,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 1.5,
+  "source": "deepseek"
+ },
+ "咱们班那位'学霸'这次终于不用补考了，恭喜恭喜|group:small": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "professional",
+  "reviewWorthiness": 2.2,
+  "source": "deepseek"
+ },
+ "咱们班那位'学霸'这次终于不用补考了，恭喜恭喜|group:unknown": {
+  "thirdParty": 0.7,
+  "identityLinkable": 0.6,
+  "sensitiveCategory": "professional",
+  "reviewWorthiness": 1.8,
+  "source": "deepseek"
+ },
+ "你欠我的那两千块什么时候还|none": {
+  "thirdParty": 0,
+  "identityLinkable": 0,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 0.5,
+  "source": "deepseek"
+ },
+ "你欠我的那两千块什么时候还|direct:": {
+  "thirdParty": 0,
+  "identityLinkable": 0,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 0.3,
+  "source": "deepseek"
+ },
+ "你欠我的那两千块什么时候还|group:small": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.6,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 2.5,
+  "source": "deepseek"
+ },
+ "你欠我的那两千块什么时候还|group:unknown": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 2.5,
+  "source": "deepseek"
+ },
+ "My coworker Zhang was diagnosed with depression last week and is now at Chaoyang Hospital|none": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.9,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "My coworker Zhang was diagnosed with depression last week and is now at Chaoyang Hospital|direct:": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.9,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "My coworker Zhang was diagnosed with depression last week and is now at Chaoyang Hospital|group:small": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.9,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "My coworker Zhang was diagnosed with depression last week and is now at Chaoyang Hospital|group:unknown": {
+  "thirdParty": 0.95,
+  "identityLinkable": 0.9,
+  "sensitiveCategory": "health",
+  "reviewWorthiness": 3,
+  "source": "deepseek"
+ },
+ "Tomorrow's project review moved to 3pm in room 2, please bring the weekly report|none": {
+  "thirdParty": 0,
+  "identityLinkable": 0,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0,
+  "source": "deepseek"
+ },
+ "Tomorrow's project review moved to 3pm in room 2, please bring the weekly report|direct:": {
+  "thirdParty": 0.05,
+  "identityLinkable": 0,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.1,
+  "source": "deepseek"
+ },
+ "Tomorrow's project review moved to 3pm in room 2, please bring the weekly report|group:small": {
+  "thirdParty": 0.05,
+  "identityLinkable": 0,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.2,
+  "source": "deepseek"
+ },
+ "Tomorrow's project review moved to 3pm in room 2, please bring the weekly report|group:unknown": {
+  "thirdParty": 0.05,
+  "identityLinkable": 0,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.2,
+  "source": "deepseek"
+ },
+ "Congrats to our class 'genius' for finally not having to retake the exam lol|none": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 2.2,
+  "source": "deepseek"
+ },
+ "Congrats to our class 'genius' for finally not having to retake the exam lol|direct:": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 2.2,
+  "source": "deepseek"
+ },
+ "Congrats to our class 'genius' for finally not having to retake the exam lol|group:small": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 2.2,
+  "source": "deepseek"
+ },
+ "Congrats to our class 'genius' for finally not having to retake the exam lol|group:unknown": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 2.2,
+  "source": "deepseek"
+ },
+ "When are you paying back the 300 bucks you owe me?|none": {
+  "thirdParty": 0,
+  "identityLinkable": 0,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 0.5,
+  "source": "deepseek"
+ },
+ "When are you paying back the 300 bucks you owe me?|direct:": {
+  "thirdParty": 0,
+  "identityLinkable": 0,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 0.5,
+  "source": "deepseek"
+ },
+ "When are you paying back the 300 bucks you owe me?|group:small": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 2.5,
+  "source": "deepseek"
+ },
+ "When are you paying back the 300 bucks you owe me?|group:unknown": {
+  "thirdParty": 0.85,
+  "identityLinkable": 0.7,
+  "sensitiveCategory": "financial",
+  "reviewWorthiness": 2.5,
+  "source": "deepseek"
+ },
+ "Please keep this confidential file to yourself|none": {
+  "thirdParty": 0.1,
+  "identityLinkable": 0.05,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.2,
+  "source": "deepseek"
+ },
+ "Please keep this confidential file to yourself|direct:": {
+  "thirdParty": 0.05,
+  "identityLinkable": 0.05,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.2,
+  "source": "deepseek"
+ },
+ "Please keep this confidential file to yourself|group:small": {
+  "thirdParty": 0.1,
+  "identityLinkable": 0.05,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.4,
+  "source": "deepseek"
+ },
+ "Please keep this confidential file to yourself|group:unknown": {
+  "thirdParty": 0.1,
+  "identityLinkable": 0.05,
+  "sensitiveCategory": "none",
+  "reviewWorthiness": 0.4,
+  "source": "deepseek"
+ }
+}

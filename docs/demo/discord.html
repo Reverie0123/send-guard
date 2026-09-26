@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send Guard demo · Discord</title>
+  <link rel="stylesheet" href="demo.css">
+  <style>
+    .dc { flex: 1; display: flex; background: #313338; color: #dbdee1; min-width: 0; }
+    .servers { width: 64px; background: #1e1f22; padding-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+    .servers b { width: 44px; height: 44px; border-radius: 16px; background: #5865f2; display: flex; align-items: center; justify-content: center; color: #fff; }
+    .channels { width: 180px; background: #2b2d31; padding: 16px 10px; flex-shrink: 0; }
+    .channels .t { font-weight: 700; color: #f2f3f5; margin-bottom: 12px; }
+    .channels .on { background: #404249; color: #f2f3f5; padding: 6px 8px; border-radius: 4px; }
+    .chat { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .top { height: 48px; border-bottom: 1px solid #1f2023; padding: 0 16px; display: flex; align-items: center; font-weight: 600; color: #f2f3f5; }
+    .msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; }
+    .msg b { color: #f2f3f5; margin-right: 8px; }
+    .input { margin: 0 16px 8px; background: #383a40; border-radius: 8px; padding: 12px 16px; color: #f2f3f5; outline: 0; min-height: 44px; }
+    .tip { margin: 0 16px 14px; font-size: 12px; color: #949ba4; }
+    @media (max-width: 720px) { .servers, .channels { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="banner" data-t="banner"></div>
+  <div class="app">
+    <aside class="side">
+      <h2 data-t="pick"></h2>
+      <p data-t="pickHint"></p>
+      <div id="scenarios"></div>
+    </aside>
+    <main class="dc">
+      <div class="servers"><b>SG</b></div>
+      <div class="channels"><div class="t" data-t="server"></div><div class="on" data-t="channel"></div></div>
+      <div class="chat">
+        <div class="top" data-t="channel"></div>
+        <div class="msgs" id="msgs"></div>
+        <!-- 结构与 Discord 输入框一致：role=textbox + data-slate-editor -->
+        <div class="input" id="editor" role="textbox" data-slate-editor="true" contenteditable="true"></div>
+        <div class="tip" data-t="tryEnter"></div>
+      </div>
+    </main>
+  </div>
+  <script src="demo-stub.js"></script>
+  <script src="demo-app.js"></script>
+  <script>
+    var editor = document.getElementById("editor")
+    // 模拟 Discord 自己的发送：Enter（非 Shift）发送；Send Guard 放行时会补发一个 keyCode=13 的 Enter
+    editor.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" || e.shiftKey) return
+      e.preventDefault()
+      var text = editor.innerText.trim()
+      if (!text) return
+      var m = document.createElement("div")
+      m.className = "msg"
+      m.innerHTML = "<b></b><span></span>"
+      m.querySelector("b").textContent = SGDemo.T.you
+      m.querySelector("span").textContent = text
+      document.getElementById("msgs").appendChild(m)
+      editor.innerText = ""
+    })
+    SGDemo.scenarios(document.getElementById("scenarios"), function (text) {
+      editor.innerText = text
+      editor.focus()
+    })
+  </script>
+  <script src="content-discord.js"></script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 # Send Guard
 
-**当前版本：v0.4.0** · [更新日志](CHANGELOG.md)
+**当前版本：v0.4.1** · [更新日志](CHANGELOG.md) · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [下载](https://github.com/Reverie0123/send-guard/releases/latest)
+
+> 在线试玩不用安装、不用 API key：页面运行的是真实的扩展代码，示例消息的结果由 DeepSeek 预先生成。
 
 Send Guard 在你按下发送键之前做一次隐私检查：结合消息内容、收件人关系和你提供的少量上下文，判断是否涉及第三方隐私、能否据此认出具体的人、是否超出应有的披露范围。它不会阻止你发送，只在值得再看一眼时提醒。
 
@@ -18,7 +20,9 @@ Send Guard 在你按下发送键之前做一次隐私检查：结合消息内容
 
 ## 安装
 
-目前需要从源码构建（需要 Node.js 18+）：
+**直接安装**：在 [Releases](https://github.com/Reverie0123/send-guard/releases/latest) 下载 `send-guard-v版本号.zip` 并解压，按下面 Chrome / Edge 的步骤选择解压后的文件夹。
+
+**从源码构建**（需要 Node.js 18+）：
 
 ```bash
 npm install
@@ -93,6 +97,8 @@ iOS Safari 扩展，计划中。
 | `npm run calibrate` | 用真实接口跑 `tests/calibration/cases.json` 的校准样本，统计漏报 / 误报（需环境变量 `DEEPSEEK_API_KEY`，一轮约 ¥0.1） |
 | `npm run package` | 生成上架用的 `release-artifacts/send-guard-v{版本}.zip` |
 | `npm run store:screenshots` | 重新生成商店截图 `store/screenshots/*.png` |
+| `npm run build:demo` | 用真实的 content.ts 构建在线试玩脚本 `docs/demo/content-*.js` |
+| `npm run demo:results` | 重新生成试玩页的示例结果（需 `DEEPSEEK_API_KEY`） |
 | `npm run release` | 同步版本号 → 编译检查 → 单元测试 → 提交、打 tag、推送 |
 
 商店上架文案、权限说明见 [store/listing.md](store/listing.md)，隐私政策见 [docs/privacy.html](https://reverie0123.github.io/send-guard/privacy.html)。

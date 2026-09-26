@@ -9,6 +9,7 @@
 - **语言**：扩展包自 v0.3.2 起带 `_locales/en` 与 `_locales/zh_CN`，商店后台可分别填写英文和中文（简体）介绍；界面文字跟随浏览器语言
 - **隐私政策网址**：https://reverie0123.github.io/send-guard/privacy.html
 - **网站**：https://reverie0123.github.io/send-guard/
+- **在线试玩**：https://reverie0123.github.io/send-guard/demo/
 - **支持网址**：https://github.com/Reverie0123/send-guard/issues
 
 ## 简短说明（≤ 132 字符）

@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send Guard · Live demo</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; }
+    .bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .bar img { width: 28px; height: 28px; }
+    .bar h1 { font-size: 18px; margin: 0; }
+    .bar .desc { color: var(--muted); font-size: 13px; flex: 1; min-width: 200px; }
+    .tabs, .langs { display: flex; gap: 4px; }
+    .tabs button, .langs button { font: inherit; font-size: 13px; padding: 5px 12px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); cursor: pointer; }
+    .tabs button.on, .langs button.on { background: var(--link); border-color: var(--link); color: #fff; }
+    .links { font-size: 13px; }
+    .links a { margin-left: 10px; }
+    iframe { flex: 1; width: 100%; border: 0; background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <img src="../icon.svg" alt="">
+    <h1>Send Guard</h1>
+    <span class="desc" id="desc"></span>
+    <div class="tabs" id="tabs">
+      <button data-page="gmail.html">Gmail</button>
+      <button data-page="discord.html">Discord</button>
+    </div>
+    <div class="langs" id="langs">
+      <button data-lang="zh">中文</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <span class="links">
+      <a id="install" href="https://github.com/Reverie0123/send-guard/releases/latest"></a>
+      <a href="https://github.com/Reverie0123/send-guard">GitHub</a>
+    </span>
+  </div>
+  <iframe id="frame" title="Send Guard demo"></iframe>
+  <script>
+    var params = new URLSearchParams(location.search)
+    var state = {
+      lang: params.get("lang") || ((navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en"),
+      page: params.get("page") === "discord" ? "discord.html" : "gmail.html"
+    }
+    var TEXT = {
+      zh: { desc: "发送前的隐私检查：在真实的扩展代码上试一试，不用安装，不用 API key。", install: "下载安装" },
+      en: { desc: "A privacy check before you hit Send — try the real extension code, no install or API key needed.", install: "Install" }
+    }
+    function render() {
+      document.documentElement.lang = state.lang === "zh" ? "zh-CN" : "en"
+      document.getElementById("desc").textContent = TEXT[state.lang].desc
+      document.getElementById("install").textContent = TEXT[state.lang].install
+      document.querySelectorAll("#tabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.page === state.page) })
+      document.querySelectorAll("#langs button").forEach(function (b) { b.classList.toggle("on", b.dataset.lang === state.lang) })
+      document.getElementById("frame").src = state.page + "?lang=" + state.lang
+      history.replaceState(null, "", "?lang=" + state.lang + "&page=" + state.page.replace(".html", ""))
+    }
+    document.querySelectorAll("#tabs button").forEach(function (b) { b.addEventListener("click", function () { state.page = b.dataset.page; render() }) })
+    document.querySelectorAll("#langs button").forEach(function (b) { b.addEventListener("click", function () { state.lang = b.dataset.lang; render() }) })
+    render()
+  </script>
+</body>
+</html>

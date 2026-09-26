@@ -1,0 +1,18 @@
+{
+  "zh": [
+    { "id": "health", "label": "转述同事的病情", "text": "我同事张三上周被确诊抑郁症，现在住在朝阳医院" },
+    { "id": "work", "label": "普通工作通知", "text": "明天下午三点的项目评审会改到二号会议室，记得带上周报" },
+    { "id": "sarcasm", "label": "阴阳怪气", "text": "咱们班那位'学霸'这次终于不用补考了，恭喜恭喜" },
+    { "id": "debt", "label": "催债：私聊 vs 群里", "text": "你欠我的那两千块什么时候还" },
+    { "id": "trivial", "label": "客套话（本地放行）", "text": "好的收到" },
+    { "id": "word", "label": "命中自定义敏感词「机密」", "text": "这份机密文件先别外传" }
+  ],
+  "en": [
+    { "id": "health", "label": "A coworker's diagnosis", "text": "My coworker Zhang was diagnosed with depression last week and is now at Chaoyang Hospital" },
+    { "id": "work", "label": "Routine work update", "text": "Tomorrow's project review moved to 3pm in room 2, please bring the weekly report" },
+    { "id": "sarcasm", "label": "Sarcasm", "text": "Congrats to our class 'genius' for finally not having to retake the exam lol" },
+    { "id": "debt", "label": "Asking for money: DM vs group", "text": "When are you paying back the 300 bucks you owe me?" },
+    { "id": "trivial", "label": "Trivial reply (skipped locally)", "text": "ok got it" },
+    { "id": "word", "label": "Custom sensitive word \"confidential\"", "text": "Please keep this confidential file to yourself" }
+  ]
+}

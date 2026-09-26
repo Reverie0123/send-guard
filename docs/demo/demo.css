@@ -1,0 +1,21 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { font: 14px/1.5 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; flex-direction: column; }
+.banner { background: #2b6cb0; color: #fff; font-size: 12px; padding: 6px 14px; text-align: center; }
+.app { flex: 1; display: flex; min-height: 0; }
+.side { width: 290px; flex-shrink: 0; padding: 16px; overflow-y: auto; background: #f7f8fa; border-right: 1px solid #e2e8f0; color: #1a202c; }
+.side h2 { font-size: 14px; margin: 0 0 4px; }
+.side p { margin: 0 0 12px; color: #718096; font-size: 12px; }
+.scenario { display: block; width: 100%; text-align: left; margin-bottom: 8px; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; cursor: pointer; font: inherit; color: inherit; }
+.scenario:hover { border-color: #2b6cb0; }
+.scenario b { display: block; font-size: 13px; }
+.scenario span { display: block; color: #718096; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seg { display: flex; gap: 6px; margin: 4px 0 16px; }
+.seg button { flex: 1; padding: 5px 0; border: 1px solid #cbd5e0; border-radius: 6px; background: #fff; cursor: pointer; font: inherit; font-size: 12px; }
+.seg button.on { background: #2b6cb0; border-color: #2b6cb0; color: #fff; }
+.toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: #1a202c; color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 13px; z-index: 10; }
+
+@media (max-width: 720px) {
+  .app { flex-direction: column; }
+  .side { width: auto; border-right: 0; border-bottom: 1px solid #e2e8f0; max-height: 45%; }
+}

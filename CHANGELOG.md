@@ -2,6 +2,11 @@
 
 版本号只在根目录 `package.json` 维护，通过 `npm run version:sync` 同步。
 
+## [0.4.1] - 2026-09-26
+### Added
+- 在线试玩页 docs/demo/：模拟 Gmail 与 Discord，运行真实的 content.ts，示例消息结果由 DeepSeek 预先生成，不用安装、不用 API key，中英文可切换（影响范围：extension）
+- GitHub Release 附带可直接安装的 zip 与安装说明；README 增加试玩与下载入口（影响范围：extension）
+
 ## [0.4.0] - 2026-09-26
 ### Added
 - 新增 QQ 邮箱（wx.mail.qq.com）和 Outlook（outlook.live.com，含 outlook.office.com）的发送前拦截：发送按钮 / Ctrl+Enter，放行时通过适配层点发送；按收件人标签数识别发送对象。两者均在真实页面验证（影响范围：extension）
