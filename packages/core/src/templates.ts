@@ -22,6 +22,7 @@ const T = {
     providerNote: (p: string) => `由 ${p} 通用模型估算，概率未经校准，仅供参考。`,
     audienceUnknown: "未识别（用默认上下文）",
     audienceDirect: "私聊 / 单个收件人",
+    audiencePublic: "公开发布（所有人可见）",
     audienceGroup: (size: string) => `群聊 / 多个收件人（${size}）`,
     sizes: { small: "约 2–10 人", medium: "约 11–50 人", large: "50 人以上", unknown: "人数未知" } as Record<string, string>
   },
@@ -36,6 +37,7 @@ const T = {
     providerNote: (p: string) => `Estimated by a general-purpose ${p} model; probabilities are not calibrated.`,
     audienceUnknown: "Not detected (using default context)",
     audienceDirect: "Direct message / one recipient",
+    audiencePublic: "Public post (anyone can see it)",
     audienceGroup: (size: string) => `Group / multiple recipients (${size})`,
     sizes: { small: "about 2–10 people", medium: "about 11–50 people", large: "50+ people", unknown: "size unknown" } as Record<string, string>
   }
@@ -178,6 +180,7 @@ export function describeAudience(a: Audience | undefined, locale: Locale = "zh")
   const t = T[locale]
   if (!a) return t.audienceUnknown
   if (a.kind === "direct") return t.audienceDirect
+  if (a.kind === "public") return t.audiencePublic
   return t.audienceGroup(t.sizes[a.size ?? "unknown"]!)
 }
 

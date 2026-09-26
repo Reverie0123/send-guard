@@ -14,10 +14,10 @@ export const SENSITIVE_CATEGORIES = [
 export type SensitiveCategory = (typeof SENSITIVE_CATEGORIES)[number]
 
 /**
- * 发送对象（粗粒度）。只描述「私聊还是群」和大致人数，绝不包含名字、邮箱、用户名。
- * size：direct 固定 1；group 为 small(2–10) / medium(11–50) / large(50+) / unknown
+ * 发送对象（粗粒度）。只描述「私聊 / 群 / 公开发布」和大致人数，绝不包含名字、邮箱、用户名。
+ * size：direct 固定 1；group 为 small(2–10) / medium(11–50) / large(50+) / unknown；public 不带 size（所有人可见）
  */
-export type AudienceKind = "direct" | "group"
+export type AudienceKind = "direct" | "group" | "public"
 export type AudienceSize = "small" | "medium" | "large" | "unknown"
 
 export interface Audience {
@@ -28,7 +28,7 @@ export interface Audience {
 export function isAudience(v: unknown): v is Audience {
   if (typeof v !== "object" || v === null) return false
   const a = v as Record<string, unknown>
-  if (a.kind !== "direct" && a.kind !== "group") return false
+  if (a.kind !== "direct" && a.kind !== "group" && a.kind !== "public") return false
   return a.size === undefined || ["small", "medium", "large", "unknown"].includes(a.size as string)
 }
 

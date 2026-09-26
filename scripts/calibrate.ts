@@ -10,9 +10,9 @@
 import { readFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { analyzeWithLlm, getAlertLevel, localGate, type LlmProvider } from "../packages/core/src/index"
+import { analyzeWithLlm, getAlertLevel, localGate, type Audience, type LlmProvider } from "../packages/core/src/index"
 
-type Case = { id: string; expect: "warn" | "none" | "edge"; rc: string; text: string }
+type Case = { id: string; expect: "warn" | "none" | "edge"; rc: string; text: string; audience?: Audience }
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..")
 const provider = (process.argv[2] ?? "deepseek") as LlmProvider
@@ -35,7 +35,7 @@ async function worker(): Promise<void> {
   for (let c = queue.shift(); c; c = queue.shift()) {
     const gate = localGate(c.text)
     try {
-      const r = await analyzeWithLlm(provider, { text: c.text, recipientContext: c.rc || undefined }, key!)
+      const r = await analyzeWithLlm(provider, { text: c.text, recipientContext: c.rc || undefined, audience: c.audience }, key!)
       inTok += r.tokenUsage?.input ?? 0
       outTok += r.tokenUsage?.output ?? 0
       const level = getAlertLevel(r)

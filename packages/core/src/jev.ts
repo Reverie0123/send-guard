@@ -27,6 +27,7 @@ const SIZE_EN: Record<string, string> = {
 /** 给模型看的发送对象描述 */
 export function describeAudienceEn(a: Audience): string {
   if (a.kind === "direct") return "direct message to one person"
+  if (a.kind === "public") return "public post (anyone on the internet can read it, including strangers and the person being talked about)"
   return `group chat / channel / multiple recipients (${SIZE_EN[a.size ?? "unknown"]} can read it, not only the person being talked about)`
 }
 

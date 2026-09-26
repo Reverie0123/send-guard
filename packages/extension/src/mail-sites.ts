@@ -1,5 +1,7 @@
+import type { Audience } from "@send-guard/core"
+
 /**
- * 网页邮箱的 DOM 描述。拦截逻辑（点发送 / Ctrl+Enter → 检查 → 通过适配层点发送）在 content.ts 的 mailAdapter 里统一实现，
+ * 网页邮箱（以及同样「点按钮 / Ctrl+Enter 发送」的发帖框，如 X）的 DOM 描述。拦截逻辑（点发送 / Ctrl+Enter → 检查 → 通过适配层点发送）在 content.ts 的 mailAdapter 里统一实现，
  * 每个邮箱只需说明：正文编辑框、发送按钮、撰写区域、收件人数量。
  * 选择器均在真实页面上核对过（2026-09-26）。
  */
@@ -15,6 +17,8 @@ export interface MailSpec {
   composeRoot(from: Element): Element | null
   /** 收件人数量（收件人 + 抄送 + 密送）；统计不到返回 0。只在本地计数，不上传地址 */
   recipientCount(root: Element): number
+  /** 可选：发送对象不由收件人数量决定时（如公开发帖）直接给出 */
+  audience?(root: Element): Audience | undefined
 }
 
 /** 从 el 向外找第一个同时满足 test 的祖先 */
@@ -73,5 +77,31 @@ export const outlook: MailSpec = {
   recipientCount(root) {
     return [...root.querySelectorAll(OUTLOOK_RCPT)]
       .reduce((sum, field) => sum + field.querySelectorAll("._EType_RECIPIENT_ENTITY").length, 0)
+  }
+}
+
+// ---- X（x.com 发帖 / 回复 / 引用） ----
+// 正文：Draft.js 编辑框 [data-testid="tweetTextarea_N"]（串推时有多个）；
+// 发送：首页和回复框内嵌的 tweetButtonInline、弹窗里的 tweetButton；没有内容时按钮带 aria-disabled
+// 发帖默认公开，受众按「公开发布」处理。私信（x.com/i/chat）是另一套界面，暂未适配。
+const X_SEND = '[data-testid="tweetButton"], [data-testid="tweetButtonInline"]'
+
+export const xPost: MailSpec = {
+  editor: '[data-testid^="tweetTextarea_"][contenteditable="true"]',
+  sendButtonFrom(el) {
+    const btn = el.closest<HTMLElement>(X_SEND)
+    return btn && btn.getAttribute("aria-disabled") !== "true" ? btn : null
+  },
+  findSendButton(root) {
+    return root.querySelector<HTMLElement>(X_SEND)
+  },
+  composeRoot(from) {
+    return closestMatching(from, n => !!n.querySelector(this.editor) && !!this.findSendButton(n))
+  },
+  recipientCount() {
+    return 0
+  },
+  audience() {
+    return { kind: "public" }
   }
 }

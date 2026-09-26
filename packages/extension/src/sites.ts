@@ -3,7 +3,7 @@
  * 新增站点时：content.ts 加适配器 → 这里登记 → README 表格 → CHANGELOG → 升 minor。
  */
 export interface SupportedSite {
-  id: "gmail" | "discord" | "qqmail" | "outlook"
+  id: "gmail" | "discord" | "qqmail" | "outlook" | "x"
   name: string
   hosts: readonly string[]
 }
@@ -14,7 +14,9 @@ export const SUPPORTED_SITES: readonly SupportedSite[] = [
   // mail.qq.com 登录后会跳到新版 wx.mail.qq.com
   { id: "qqmail", name: "QQ 邮箱", hosts: ["wx.mail.qq.com"] },
   // 个人账号 outlook.live.com；工作 / 学校账号 outlook.office.com、outlook.office365.com（同一套网页）
-  { id: "outlook", name: "Outlook", hosts: ["outlook.live.com", "outlook.office.com", "outlook.office365.com"] }
+  { id: "outlook", name: "Outlook", hosts: ["outlook.live.com", "outlook.office.com", "outlook.office365.com"] },
+  // twitter.com 会跳转到 x.com
+  { id: "x", name: "X", hosts: ["x.com"] }
 ]
 
 export function supportedSiteFor(hostname: string): SupportedSite | undefined {

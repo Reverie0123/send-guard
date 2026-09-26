@@ -15,7 +15,7 @@ import {
 import type { AnalyzeResponse, ConfigResponse, ContentConfig, ContentPush, ManualCheckResponse } from "./messages"
 import { locale, t } from "./i18n"
 import { GMAIL_EDITOR, GMAIL_SEND, gmailComposeRoot, gmailRecipientCount } from "./gmail"
-import { outlook, qqMail, type MailSpec } from "./mail-sites"
+import { outlook, qqMail, xPost, type MailSpec } from "./mail-sites"
 import { patternMatchesUrl, supportedSiteFor } from "./sites"
 
 // =====================================================================
@@ -610,10 +610,12 @@ const discordAdapter: SiteAdapter = {
   }
 }
 
-// ---- 其他网页邮箱（QQ 邮箱、Outlook）：点发送按钮 / Ctrl+Enter 拦截，放行时通过适配层点发送 ----
+// ---- 其他网页邮箱（QQ 邮箱、Outlook）和 X 发帖：点发送按钮 / Ctrl+Enter 拦截，放行时通过适配层点发送 ----
 function mailAttempt(spec: MailSpec, from: Element, start: boolean): SendAttempt | null {
   const root = spec.composeRoot(from)
-  const editor = root?.querySelector<HTMLElement>(spec.editor)
+  // 有多个编辑框（如 X 串推）时检查正在编辑的那个
+  const editors = root ? [...root.querySelectorAll<HTMLElement>(spec.editor)] : []
+  const editor = editors.find(e => e.contains(document.activeElement)) ?? editors[0]
   const button = root && spec.findSendButton(root)
   if (!editor || !button) return null
   return { editor, start, send: () => withBypass(() => dispatchClick(button)) }
@@ -624,7 +626,8 @@ function mailAdapter(spec: MailSpec): SiteAdapter {
     events: ["pointerdown", "pointerup", "mousedown", "mouseup", "click", "keydown", "keyup"],
     audience: editor => {
       const root = spec.composeRoot(editor)
-      return root ? audienceFromCount(spec.recipientCount(root)) : undefined
+      if (!root) return undefined
+      return spec.audience ? spec.audience(root) : audienceFromCount(spec.recipientCount(root))
     },
     detect(e) {
       const t = eventTarget(e)
@@ -649,7 +652,8 @@ const ADAPTERS: Record<string, SiteAdapter> = {
   gmail: gmailAdapter,
   discord: discordAdapter,
   qqmail: mailAdapter(qqMail),
-  outlook: mailAdapter(outlook)
+  outlook: mailAdapter(outlook),
+  x: mailAdapter(xPost)
 }
 
 /** 当前网站的适配器；未专门适配的网站为 undefined（只有手动检查 / 实时检查） */

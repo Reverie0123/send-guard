@@ -125,12 +125,14 @@ describe("发送对象（粗粒度）", () => {
     assert.equal(isAudience({ kind: "group", size: "small" }), true)
     assert.equal(isAudience({ kind: "group", size: "huge" }), false)
     assert.equal(isAudience({ kind: "everyone" }), false)
+    assert.equal(isAudience({ kind: "public" }), true)
     assert.equal(isAudience("group"), false)
   })
   it("写进 state，且不含任何具体身份", () => {
     const state = buildState({ text: "hi", audience: { kind: "group", size: "medium" } })
     assert.match(state, /Audience: group chat .*11-50 people/)
     assert.match(buildState({ text: "hi", audience: { kind: "direct" } }), /Audience: direct message to one person/)
+    assert.match(buildState({ text: "hi", audience: { kind: "public" } }), /Audience: public post/)
   })
   it("面板文案", () => {
     assert.equal(describeAudienceZh(undefined), "未识别（用默认上下文）")
@@ -154,6 +156,8 @@ describe("界面语言", () => {
   })
   it("英文的发送对象、类别和来源说明", () => {
     assert.equal(describeAudience({ kind: "direct" }, "en"), "Direct message / one recipient")
+    assert.equal(describeAudience({ kind: "public" }, "en"), "Public post (anyone can see it)")
+    assert.equal(describeAudience({ kind: "public" }, "zh"), "公开发布（所有人可见）")
     assert.match(describeAudience({ kind: "group", size: "medium" }, "en"), /11–50/)
     assert.equal(categoryLabel("financial", "en"), "Financial")
     assert.match(providerNote("deepseek", "en"), /not calibrated/)

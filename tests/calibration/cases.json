@@ -92,5 +92,15 @@
   {"id":"E08","expect":"edge","rc":"朋友","text":"我同学考上清华了！"},
   {"id":"E09","expect":"edge","rc":"朋友","text":"那个人好像住在我们楼上"},
   {"id":"E10","expect":"edge","rc":"群聊","text":"我朋友说他们公司下周要大裁员"},
-  {"id":"R01","expect":"edge","rc":"当事人本人（私聊）","text":"恭喜你啊老公被拐跑了还这么嗨"}
+  {"id":"R01","expect":"edge","rc":"当事人本人（私聊）","text":"恭喜你啊老公被拐跑了还这么嗨"},
+  {"id":"P01","expect":"warn","rc":"","audience":{"kind":"public"},"text":"我们公司那个HR王丽最近在打离婚官司，听说是因为家暴，大家以后离她远点"},
+  {"id":"P02","expect":"warn","rc":"","audience":{"kind":"public"},"text":"Just found out my coworker Jake from accounting has been in rehab for opioids, explains a lot lol"},
+  {"id":"P03","expect":"warn","rc":"","audience":{"kind":"public"},"text":"隔壁班的陈某某高考没过本科线，还天天在朋友圈装学霸，笑死"},
+  {"id":"P04","expect":"warn","rc":"","audience":{"kind":"public"},"text":"My ex Sarah Miller still lives at 42 Oak Street and she never locks her door, just saying"},
+  {"id":"P05","expect":"warn","rc":"","audience":{"kind":"public"},"text":"恭喜我们组\"最靠谱\"的小周终于被裁了，病假请了三个月的人果然留不住"},
+  {"id":"P06","expect":"none","rc":"","audience":{"kind":"public"},"text":"今天终于把毕业论文交了，熬了三个通宵，感觉整个人都空了"},
+  {"id":"P07","expect":"none","rc":"","audience":{"kind":"public"},"text":"Shipped v2 of my side project today. Took 6 months but it finally works."},
+  {"id":"P08","expect":"none","rc":"","audience":{"kind":"public"},"text":"恭喜中国女排夺冠！朱婷这一场太稳了"},
+  {"id":"P09","expect":"none","rc":"","audience":{"kind":"public"},"text":"Big thanks to my teammate Alex for the amazing talk at the conference today!"},
+  {"id":"P10","expect":"none","rc":"","audience":{"kind":"public"},"text":"这家店的拉面真的好吃，推荐给住在海淀的朋友"}
 ]
