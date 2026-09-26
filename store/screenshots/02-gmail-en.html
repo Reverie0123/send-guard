@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+  .mail { position: absolute; inset: 0; background: #f6f8fc; }
+  .bar-top { height: 60px; display: flex; align-items: center; padding: 0 20px; font-size: 20px; color: #444; gap: 10px; }
+  .bar-top b { color: #ea4335; }
+  .list { position: absolute; left: 20px; top: 70px; right: 20px; bottom: 20px; background: #fff; border-radius: 16px; }
+  .list div { height: 44px; border-bottom: 1px solid #f1f3f4; margin: 0 16px; }
+  .compose { position: absolute; right: 30px; bottom: 0; width: 520px; height: 520px; background: #fff; border-radius: 10px 10px 0 0; box-shadow: 0 8px 30px rgba(0,0,0,.25); display: flex; flex-direction: column; font-size: 14px; color: #202124; }
+  .compose .h { background: #f2f6fc; padding: 10px 16px; border-radius: 10px 10px 0 0; font-weight: 600; }
+  .field { padding: 8px 16px; border-bottom: 1px solid #f1f3f4; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; color: #5f6368; }
+  .chip { background: #e8eaed; border-radius: 12px; padding: 2px 10px; color: #202124; font-size: 13px; }
+  .body { flex: 1; padding: 12px 16px; line-height: 1.7; position: relative; }
+  .foot { padding: 12px 16px; }
+  .send { display: inline-block; background: #0b57d0; color: #fff; border-radius: 18px; padding: 8px 22px; font-weight: 600; }
+</style></head>
+<body>
+  <div class="caption">
+    <img src="../../packages/extension/icons/icon.svg" alt="">
+    <h1>Email, too</h1>
+    <p>Checks when you click Send or press Ctrl+Enter in Gmail, Outlook or QQ Mail. You can always choose "Send anyway" — it never blocks you.</p>
+  </div>
+  <div class="stage">
+    <div class="mail">
+      <div class="bar-top"><b>M</b> Gmail</div>
+      <div class="list"><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      <div class="compose">
+        <div class="h">New Message</div>
+        <div class="field">To <span class="chip">Project Team A</span><span class="chip">Alex Wang</span><span class="chip">Maria Zhao</span></div>
+        <div class="field">Subject: Thursday review meeting</div>
+        <div class="body">Hi all, Thursday's review goes ahead as planned.<br>Also, our client Mr. Li is going through chemo right now, so he may miss next week's meeting. Let's prepare as planned.
+          <div class="icon red" style="right:12px; top:10px">🔴</div>
+        </div>
+        <div class="foot"><span class="send">Send</span></div>
+      </div>
+    </div>
+    <div class="panel" style="left:24px; bottom:150px">
+      <div class="head red">🔴  Check before sending</div>
+      <div class="rows">
+        <div class="row"><span class="label">Third-party privacy</span><span class="val"><span class="band" style="color:#e53e3e">HIGH</span>0.95</span></div>
+        <div class="row"><span class="label">Identifiable</span><span class="val"><span class="band" style="color:#e53e3e">HIGH</span>0.90</span></div>
+        <div class="row"><span class="label">Category</span><span class="val">Health</span></div>
+        <div class="row"><span class="label">Review advice</span><span class="val"><span class="bar"><i style="background:#4a5568"></i><i style="background:#4a5568"></i><i style="background:#4a5568"></i></span>3.0/3</span></div>
+        <div class="row"><span class="label">Audience</span><span class="val">Group / multiple recipients (about 2–10 people)</span></div>
+      </div>
+      <div class="summary">May reveal someone else's private information; Could help recipients identify a specific person; Involves health details; Worth a second look before sending</div>
+      <div class="actions"><span>Send anyway</span><span class="primary">Let me review</span></div>
+    </div>
+  </div>
+</body>
+</html>

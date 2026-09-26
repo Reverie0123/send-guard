@@ -1,5 +1,5 @@
 /**
- * 生成商店截图 store/screenshots/*.png（1280×800）。
+ * 生成商店截图 store/screenshots/*.png（1280×800），中文 + 英文（*-en）各一套。
  *   - 01、02：store/screenshots 下的静态示例页
  *   - 03：用构建好的真实弹窗（dist/popup.html + popup.js）填入示例数据渲染
  * 用本机 Edge / Chrome 的无头模式截图，使用临时用户目录，不碰你的浏览器配置。先运行 npm run build。
@@ -28,28 +28,37 @@ if (!browser) {
   process.exit(1)
 }
 
-// 03：真实弹窗原样放进 iframe（srcdoc，样式互不干扰），chrome.* 换成示例数据
+// 03：真实弹窗原样放进 iframe（srcdoc，样式互不干扰），chrome.* 换成示例数据；中英文各一张
 const version = (JSON.parse(readFileSync(join(DIST, "manifest.json"), "utf8")) as { version: string }).version
-const stub = `window.chrome = {
-  i18n: { getUILanguage: () => "zh-CN" },
+const POPUP_TEXT = {
+  zh: { lang: "zh-CN", suffix: "", context: "我的同学", words: "身份证, 住院",
+    title: "你来决定<br>发给谁检查",
+    desc: "用自己的 API key 选择检测服务。自定义敏感词只在本地匹配；发送对象只识别「私聊 / 群聊 + 人数」，不读取任何名字和地址。" },
+  en: { lang: "en-US", suffix: "-en", context: "my classmates", words: "passport, hospital",
+    title: "You choose<br>who checks it",
+    desc: "Bring your own API key. Custom sensitive words are matched only on your device; the audience hint is just direct vs. group and a rough size — no names or addresses." }
+}
+for (const t of Object.values(POPUP_TEXT)) {
+  const stub = `window.chrome = {
+  i18n: { getUILanguage: () => "${t.lang}" },
   runtime: { getManifest: () => ({ version: "${version}" }),
     async sendMessage(m) {
       if (m.type === "getPopupState") return {
         hasKey: { jev: false, deepseek: true, openrouter: false }, models: { deepseek: "", openrouter: "" },
         sites: ["https://mail.google.com/*", "https://discord.com/*"],
-        settings: { enabled: true, provider: "deepseek", mode: "presend", realtimeConsent: false, recipientContext: "我的同学", relationship: "friend", sensitiveWords: "身份证, 住院", autoAudience: true },
+        settings: { enabled: true, provider: "deepseek", mode: "presend", realtimeConsent: false, recipientContext: "${t.context}", relationship: "friend", sensitiveWords: "${t.words}", autoAudience: true },
         stats: { month: "2026-09", count: 128, input: 58900, output: 4100, jevInput: 0, deepseekInput: 58900, deepseekOutput: 4100, costUsd: 0 } };
       return true } },
   tabs: { async query() { return [{ id: 1, url: "https://discord.com/channels/1/2" }] } },
   permissions: { async request() { return true } }
 };`
-const popupDoc = readFileSync(join(DIST, "popup.html"), "utf8")
-  .replace('src="icons/icon.svg"', 'src="../../packages/extension/icons/icon.svg"')
-  .replace('<script src="popup.js"></script>', () => `<script>${stub}</script><script>${readFileSync(join(DIST, "popup.js"), "utf8")}</script>`)
-// 放进 <script> 里的字符串不能出现 </script>
-const srcdoc = JSON.stringify(popupDoc).replace(/<\//g, "<\\/")
-writeFileSync(join(SHOTS, "03-popup.html"), `<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+  const popupDoc = readFileSync(join(DIST, "popup.html"), "utf8")
+    .replace('src="icons/icon.svg"', 'src="../../packages/extension/icons/icon.svg"')
+    .replace('<script src="popup.js"></script>', () => `<script>${stub}</script><script>${readFileSync(join(DIST, "popup.js"), "utf8")}</script>`)
+  // 放进 <script> 里的字符串不能出现 </script>
+  const srcdoc = JSON.stringify(popupDoc).replace(/<\//g, "<\\/")
+  writeFileSync(join(SHOTS, `03-popup${t.suffix}.html`), `<!doctype html>
+<html lang="${t.lang}"><head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
 <style>
   .stage { display: flex; justify-content: center; align-items: flex-start; padding-top: 24px; }
   iframe { width: 340px; height: 752px; border: 0; border-radius: 12px; background: #fff; box-shadow: 0 10px 40px rgba(0,0,0,.2); }
@@ -57,17 +66,19 @@ writeFileSync(join(SHOTS, "03-popup.html"), `<!doctype html>
 <body>
   <div class="caption">
     <img src="../../packages/extension/icons/icon.svg" alt="">
-    <h1>你来决定<br>发给谁检查</h1>
-    <p>用自己的 API key 选择检测服务。自定义敏感词只在本地匹配；发送对象只识别「私聊 / 群聊 + 人数」，不读取任何名字和地址。</p>
+    <h1>${t.title}</h1>
+    <p>${t.desc}</p>
   </div>
   <div class="stage"><iframe></iframe></div>
   <script>document.querySelector("iframe").srcdoc = ${srcdoc}</script>
 </body></html>`)
+}
 
 // [页面, 宽, 高]：截图 1280×800；商店图标 300×300；宣传小图 440×280
 const pages: [string, number, number][] = [
   ["01-warning", 1280, 800], ["02-gmail", 1280, 800], ["03-popup", 1280, 800],
-  ["logo-300", 300, 300], ["promo-440x280", 440, 280]
+  ["01-warning-en", 1280, 800], ["02-gmail-en", 1280, 800], ["03-popup-en", 1280, 800],
+  ["logo-300", 300, 300], ["promo-440x280", 440, 280], ["promo-440x280-en", 440, 280]
 ]
 const sleep = (ms: number) => execFileSync(process.execPath, ["-e", `setTimeout(() => {}, ${ms})`])
 

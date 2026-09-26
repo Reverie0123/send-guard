@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><link rel="stylesheet" href="common.css">
+<style>
+  .discord { position: absolute; inset: 0; background: #313338; color: #dbdee1; display: flex; }
+  .servers { width: 64px; background: #1e1f22; padding-top: 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .servers b { width: 44px; height: 44px; border-radius: 16px; background: #5865f2; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
+  .servers b.o { background: #3ba55c; border-radius: 22px; }
+  .channels { width: 200px; background: #2b2d31; padding: 16px 10px; font-size: 14px; }
+  .channels .t { font-weight: 700; color: #f2f3f5; margin-bottom: 14px; }
+  .channels div { padding: 6px 8px; border-radius: 4px; color: #949ba4; }
+  .channels .on { background: #404249; color: #f2f3f5; }
+  .chat { flex: 1; display: flex; flex-direction: column; }
+  .chat .top { height: 48px; border-bottom: 1px solid #1f2023; padding: 0 16px; display: flex; align-items: center; font-weight: 600; color: #f2f3f5; }
+  .msgs { flex: 1; padding: 20px 16px; display: flex; flex-direction: column; justify-content: flex-end; gap: 16px; font-size: 15px; }
+  .msg b { color: #f2f3f5; margin-right: 8px; }
+  .msg span { color: #949ba4; font-size: 12px; }
+  .input { margin: 0 16px 20px; background: #383a40; border-radius: 8px; padding: 12px 44px 12px 16px; font-size: 15px; color: #f2f3f5; position: relative; }
+</style></head>
+<body>
+  <div class="caption">
+    <img src="../../packages/extension/icons/icon.svg" alt="">
+    <h1>Look once<br>before you send</h1>
+    <p>One offhand line in a group chat can spill something a friend never meant to share. Send Guard checks when you hit Send and only speaks up when it is worth a second look.</p>
+  </div>
+  <div class="stage">
+    <div class="discord">
+      <div class="servers"><b>CL</b><b class="o">FR</b><b>WK</b></div>
+      <div class="channels"><div class="t">Class of 2026</div><div class="on"># general</div><div># homework</div><div># random</div></div>
+      <div class="chat">
+        <div class="top"># general</div>
+        <div class="msgs">
+          <div class="msg"><b>Jamie</b><span>Today at 8:31 PM</span><div>are the grades out yet?</div></div>
+          <div class="msg"><b>Sam</b><span>Today at 8:32 PM</span><div>yep, class average went up this time</div></div>
+        </div>
+        <div class="input">Big congrats to our class 'genius' for finally not having to retake the exam lol
+          <div class="icon" style="right:10px; top:10px">⚠️</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="right:34px; bottom:84px">
+      <div class="head warn">⚠️  Check before sending</div>
+      <div class="rows">
+        <div class="row"><span class="label">Third-party privacy</span><span class="val"><span class="band" style="color:#e53e3e">HIGH</span>0.85</span></div>
+        <div class="row"><span class="label">Identifiable</span><span class="val"><span class="band" style="color:#dd6b20">MED</span>0.70</span></div>
+        <div class="row"><span class="label">Category</span><span class="val">Work</span></div>
+        <div class="row"><span class="label">Review advice</span><span class="val"><span class="bar"><i style="background:#4a5568"></i><i style="background:#4a5568"></i><i style="background:linear-gradient(90deg,#4a5568 20%,#e2e8f0 20%)"></i></span>2.2/3</span></div>
+        <div class="row"><span class="label">Audience</span><span class="val">Group / multiple recipients (size unknown)</span></div>
+      </div>
+      <div class="summary">May reveal someone else's private information; Involves work details</div>
+      <div class="actions"><span>Send anyway</span><span class="primary">Let me review</span></div>
+    </div>
+  </div>
+</body>
+</html>

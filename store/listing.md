@@ -113,15 +113,19 @@ Open source: https://github.com/Reverie0123/send-guard
 ## 给审核员的测试说明（Notes for certification）
 
 ```
-Send Guard checks a message for third-party privacy disclosure right before it is sent. It uses the reviewer's/user's own API key; no account or server of ours is involved.
+Send Guard checks a message for third-party privacy disclosure right before it is sent. It uses the user's own API key; no account or server of ours is involved. The UI follows the browser language (English, or Chinese on a Chinese browser).
 
 How to test without an API key (recommended for review):
-1. Open https://discord.com or https://mail.google.com, click the extension icon, then "在此网站启用" (Enable on this site) and allow the permission prompt.
-2. Type a message of 20+ characters and press Enter (Discord) or Send / Ctrl+Enter (Gmail).
-3. Sending is paused and a panel appears. Without an API key it shows "? 检查未完成" (check incomplete) — by design, a failed check is never shown as "safe". Click "仍然发送" (Send anyway) to send, or "我再看看" (Let me review) to cancel.
-4. Local-only feature (no key needed): in the popup, enter a word under "自定义敏感词" (custom sensitive words), e.g. "secret". Typing a message containing it and pressing Send shows a red panel; nothing is uploaded.
+1. Open https://discord.com, https://mail.google.com or https://outlook.live.com, click the extension icon, then "Enable on this site" (在此网站启用) and allow the permission prompt.
+2. Type a message of 20+ characters and press Enter (Discord) or Send / Ctrl+Enter (Gmail, Outlook).
+3. Sending is paused and a panel appears. Without an API key it shows "Check incomplete" (检查未完成) - by design, a failed check is never shown as "safe". Click "Send anyway" (仍然发送) to send, or "Let me review" (我再看看) to cancel.
+4. Local-only feature (no key needed): in the popup, enter a word under "Custom sensitive words" (自定义敏感词), e.g. "secret". Typing a message containing it and pressing Send shows a red panel; nothing is uploaded.
 
-Optional, with a key: choose "DeepSeek" in the popup, paste a DeepSeek API key (platform.deepseek.com), click "保存并测试连接". A message like "Li in our class failed three exams and may be expelled" sent in a server channel then shows risk scores.
+No-install demo of the same code with pre-computed results: https://reverie0123.github.io/send-guard/demo/
+
+Optional, with a key: choose "DeepSeek" in the popup, paste a DeepSeek API key (platform.deepseek.com), click "Save & test connection". A message like "Li in our class failed three exams and may be expelled" sent in a server channel then shows risk scores.
+
+Changes in this version: English UI, Outlook and QQ Mail support, group vs. direct message detection, better detection of sarcastic remarks.
 
 Permissions: host access to other sites is optional and only requested when the user clicks "Enable on this site". api.typesafe.ai / api.deepseek.com / openrouter.ai are the detection services the user can choose. No remote code.
 Privacy policy: https://reverie0123.github.io/send-guard/privacy.html
