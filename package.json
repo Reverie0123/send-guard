@@ -1,6 +1,6 @@
 {
   "name": "send-guard",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "private": true,
   "type": "module",
   "description": "发送按钮前的语义隐私防火墙",

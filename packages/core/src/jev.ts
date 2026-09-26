@@ -21,13 +21,13 @@ const SIZE_EN: Record<string, string> = {
   small: "about 2-10 people",
   medium: "about 11-50 people",
   large: "more than 50 people",
-  unknown: "an unknown number of people"
+  unknown: "possibly many people"
 }
 
 /** 给模型看的发送对象描述 */
 export function describeAudienceEn(a: Audience): string {
   if (a.kind === "direct") return "direct message to one person"
-  return `group chat / channel / multiple recipients (${SIZE_EN[a.size ?? "unknown"]} can read it)`
+  return `group chat / channel / multiple recipients (${SIZE_EN[a.size ?? "unknown"]} can read it, not only the person being talked about)`
 }
 
 export function buildState(input: AnalyzeInput): string {

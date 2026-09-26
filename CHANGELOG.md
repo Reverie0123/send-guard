@@ -2,6 +2,11 @@
 
 版本号只在根目录 `package.json` 维护，通过 `npm run version:sync` 同步。
 
+## [0.4.2] - 2026-09-26
+### Fixed
+- 群聊反讽漏报：Discord 服务器频道这类「人数未知的群」原先描述为 an unknown number of people，模型低估了受众，「咱们班那位'学霸'终于不用补考了」在频道里直接放行（复核建议 1.8）。改为 possibly many people，并在通用模型说明中补充「在群里以玩笑或祝贺的口吻暗示他人的不体面私事也需要复核」；89 条样本回归：该提醒 42/42、误报 0/36（影响范围：core）
+- 在线试玩页的示例结果按新规则重新生成（影响范围：extension）
+
 ## [0.4.1] - 2026-09-26
 ### Added
 - 在线试玩页 docs/demo/：模拟 Gmail 与 Discord，运行真实的 content.ts，示例消息结果由 DeepSeek 预先生成，不用安装、不用 API key，中英文可切换（影响范围：extension）

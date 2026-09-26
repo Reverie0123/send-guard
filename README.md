@@ -1,6 +1,6 @@
 # Send Guard
 
-**当前版本：v0.4.1** · [更新日志](CHANGELOG.md) · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [下载](https://github.com/Reverie0123/send-guard/releases/latest)
+**当前版本：v0.4.2** · [更新日志](CHANGELOG.md) · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [下载](https://github.com/Reverie0123/send-guard/releases/latest)
 
 > 在线试玩不用安装、不用 API key：页面运行的是真实的扩展代码，示例消息的结果由 DeepSeek 预先生成。
 
