@@ -6,7 +6,8 @@
   window.__SG_LANG = lang
 
   var results = null
-  var ready = fetch("results.json").then(function (r) { return r.json() }).then(function (j) { results = j })
+  // GitHub Pages 默认缓存 10 分钟；no-cache 让浏览器每次向服务器确认，重新生成结果后立刻生效
+  var ready = fetch("results.json", { cache: "no-cache" }).then(function (r) { return r.json() }).then(function (j) { results = j })
 
   // 与 scripts/demo-results.ts 的 key 规则一致
   function key(text, a) { return text.trim() + "|" + (a ? a.kind + ":" + (a.size || "") : "none") }

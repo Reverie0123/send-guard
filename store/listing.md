@@ -10,6 +10,7 @@
 - **隐私政策网址**：https://reverie0123.github.io/send-guard/privacy.html
 - **网站**：https://reverie0123.github.io/send-guard/
 - **在线试玩**：https://reverie0123.github.io/send-guard/demo/
+- **商店页面**：https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh（2026-09-26 v0.3.1 上架）
 - **支持网址**：https://github.com/Reverie0123/send-guard/issues
 
 ## 简短说明（≤ 132 字符）

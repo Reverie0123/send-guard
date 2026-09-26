@@ -1,6 +1,6 @@
 # Send Guard
 
-**当前版本：v0.4.2** · [更新日志](CHANGELOG.md) · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [下载](https://github.com/Reverie0123/send-guard/releases/latest)
+**当前版本：v0.4.3** · **[Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh)** · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [更新日志](CHANGELOG.md)
 
 > 在线试玩不用安装、不用 API key：页面运行的是真实的扩展代码，示例消息的结果由 DeepSeek 预先生成。
 
@@ -20,7 +20,9 @@ Send Guard 在你按下发送键之前做一次隐私检查：结合消息内容
 
 ## 安装
 
-**直接安装**：在 [Releases](https://github.com/Reverie0123/send-guard/releases/latest) 下载 `send-guard-v版本号.zip` 并解压，按下面 Chrome / Edge 的步骤选择解压后的文件夹。
+**Edge（推荐）**：从 [Microsoft Edge 加载项商店](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh) 直接安装。
+
+**Chrome / 手动安装**：在 [Releases](https://github.com/Reverie0123/send-guard/releases/latest) 下载 `send-guard-v版本号.zip` 并解压，按下面 Chrome / Edge 的步骤选择解压后的文件夹。
 
 **从源码构建**（需要 Node.js 18+）：
 

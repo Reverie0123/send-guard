@@ -2,6 +2,12 @@
 
 版本号只在根目录 `package.json` 维护，通过 `npm run version:sync` 同步。
 
+## [0.4.3] - 2026-09-26
+### Changed
+- Send Guard 已在 Microsoft Edge 加载项商店上架（v0.3.1）；README、介绍页、试玩页的安装入口改为商店链接（影响范围：extension）
+### Fixed
+- 试玩页的示例结果被浏览器缓存 10 分钟，重新生成后访客仍看到旧结果；改为每次向服务器确认（影响范围：extension）
+
 ## [0.4.2] - 2026-09-26
 ### Fixed
 - 群聊反讽漏报：Discord 服务器频道这类「人数未知的群」原先描述为 an unknown number of people，模型低估了受众，「咱们班那位'学霸'终于不用补考了」在频道里直接放行（复核建议 1.8）。改为 possibly many people，并在通用模型说明中补充「在群里以玩笑或祝贺的口吻暗示他人的不体面私事也需要复核」；89 条样本回归：该提醒 42/42、误报 0/36（影响范围：core）
