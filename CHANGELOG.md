@@ -2,6 +2,16 @@
 
 版本号只在根目录 `package.json` 维护，通过 `npm run version:sync` 同步。
 
+## [0.4.0] - 2026-09-26
+### Added
+- 新增 QQ 邮箱（wx.mail.qq.com）和 Outlook（outlook.live.com，含 outlook.office.com）的发送前拦截：发送按钮 / Ctrl+Enter，放行时通过适配层点发送；按收件人标签数识别发送对象。两者均在真实页面验证（影响范围：extension）
+- 网页邮箱适配抽成通用的 mailAdapter + MailSpec（mail-sites.ts），新增邮箱只需描述选择器（影响范围：extension）
+### Changed
+- TypeSafe 暂停新账号注册，新安装默认使用 DeepSeek；弹窗中 Jev 标注「暂停新注册」、DeepSeek 标为推荐；已选过服务的用户不受影响（影响范围：extension）
+- 支持的网站可登记多个域名（Outlook 个人 / 工作账号）（影响范围：extension）
+### Fixed
+- 撰写窗口被关闭或隐藏后，提示图标仍悬浮在页面上：改为每秒检查挂靠的输入框，消失即收起（影响范围：extension）
+
 ## [0.3.2] - 2026-09-26
 ### Added
 - 中英文界面：弹窗、提醒面板、风险描述和连接测试提示跟随浏览器语言，中文浏览器显示中文，其余显示英文；core 文案函数新增 locale 参数，桌面版可复用（影响范围：extension / core）

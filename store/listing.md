@@ -35,7 +35,7 @@ Send Guard 在你按下发送键之前做一次隐私检查。
 只在值得复核时弹出提醒，你可以「仍然发送」或「我再看看」，它从不阻止你发送。
 
 支持的网站
-• Gmail、Discord：按发送时自动检查（已在真实网页验证）
+• Gmail、Outlook、QQ 邮箱、Discord：按发送时自动检查（均已在真实网页验证）
 • 其他网站：授权后可手动检查当前输入框
 
 隐私设计
@@ -47,7 +47,7 @@ Send Guard 在你按下发送键之前做一次隐私检查。
 • 检查失败显示「检查未完成」，绝不误报为安全
 
 检测服务
-使用你自己的 API key：TypeSafe Jev（推荐），或 DeepSeek / OpenRouter（临时替代）。
+使用你自己的 API key：DeepSeek（推荐）、TypeSafe Jev 或 OpenRouter。
 
 开源：https://github.com/Reverie0123/send-guard
 ```
@@ -61,14 +61,14 @@ Many privacy leaks are accidental — a casual "Li is in the hospital" in a grou
 
 It only warns when a second look is worthwhile. You can always "Send anyway" — it never blocks you.
 
-• Gmail and Discord: automatic check on Send (verified on the live sites)
+• Gmail, Outlook, QQ Mail and Discord: automatic check on Send (verified on the live sites)
 • Other sites: manual check after you grant access
 • No server of its own; collects no data
 • Short trivial messages and custom sensitive words are handled locally, never uploaded
 • Never reads recipient names, emails or usernames
 • API keys stay on your device; failures show "check incomplete", never "safe"
 
-Bring your own API key: TypeSafe Jev (recommended), DeepSeek or OpenRouter.
+Bring your own API key: DeepSeek (recommended), TypeSafe Jev or OpenRouter.
 Open source: https://github.com/Reverie0123/send-guard
 ```
 

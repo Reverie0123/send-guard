@@ -150,7 +150,7 @@ function renderSites(): void {
     name.textContent = origin.replace(/\/\*$/, "")
     name.title = origin
     const tag = document.createElement("span")
-    const supported = SUPPORTED_SITES.some(s => patternMatchesUrl(origin, `https://${s.host}/`))
+    const supported = SUPPORTED_SITES.some(s => s.hosts.some(h => patternMatchesUrl(origin, `https://${h}/`)))
     tag.className = supported ? "tag verified" : "tag"
     tag.textContent = supported ? t.tagPresend : t.tagManual
     const rm = document.createElement("button")

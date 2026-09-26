@@ -1,6 +1,6 @@
 # Send Guard
 
-**当前版本：v0.3.2** · [更新日志](CHANGELOG.md)
+**当前版本：v0.4.0** · [更新日志](CHANGELOG.md)
 
 Send Guard 在你按下发送键之前做一次隐私检查：结合消息内容、收件人关系和你提供的少量上下文，判断是否涉及第三方隐私、能否据此认出具体的人、是否超出应有的披露范围。它不会阻止你发送，只在值得再看一眼时提醒。
 
@@ -10,9 +10,11 @@ Send Guard 在你按下发送键之前做一次隐私检查：结合消息内容
 |------|---------|------|
 | Gmail（mail.google.com） | 发送前拦截：发送按钮 / Ctrl(⌘)+Enter | 已验证（Edge 153，2026-09-25） |
 | Discord（discord.com） | 发送前拦截：Enter | 已验证（Edge 153，2026-09-25） |
+| QQ 邮箱（wx.mail.qq.com） | 发送前拦截：发送按钮 / Ctrl+Enter | 已验证（Edge 153，2026-09-26） |
+| Outlook（outlook.live.com） | 发送前拦截：发送按钮 / Ctrl+Enter | 已验证（Edge 153，2026-09-26）；工作 / 学校账号的 outlook.office.com 为同一套网页，未单独验证 |
 | 其他已授权网站 | 手动检查：点扩展图标 →「检查当前输入框」 | — |
 
-v0.1 **不支持**在所有网站上做发送前拦截。每个网站的发送按钮、Enter 逻辑和表单结构都不一样，只有专门适配过的网站才会拦截。
+**不支持**在所有网站上做发送前拦截。每个网站的发送按钮、Enter 逻辑和表单结构都不一样，只有专门适配过的网站才会拦截。
 
 ## 安装
 
@@ -41,9 +43,9 @@ npm run build
 
 | 服务 | 说明 |
 |------|------|
-| TypeSafe Jev（推荐） | 返回经过校准的概率。key 在 [console.typesafe.ai](https://console.typesafe.ai/keys) 获取（目前官方注册受限） |
-| DeepSeek（临时替代） | 调用 DeepSeek 官方 API（默认模型 `deepseek-flash`）。key 在 [platform.deepseek.com](https://platform.deepseek.com/api_keys) 获取 |
-| OpenRouter（临时替代） | 经 OpenRouter 调用任意模型（默认 `deepseek/deepseek-v4.1-flash`），只路由到不留存数据的服务商 |
+| DeepSeek（默认，推荐） | 调用 DeepSeek 官方 API（默认模型 `deepseek-flash`），判定阈值已用中文样本校准。key 在 [platform.deepseek.com](https://platform.deepseek.com/api_keys) 获取 |
+| TypeSafe Jev | 返回经过校准的概率，是本项目最初设计的检测服务。**TypeSafe 目前暂停了新账号注册**，已有 key 可以直接使用 |
+| OpenRouter（备选） | 经 OpenRouter 调用任意模型（默认 `deepseek/deepseek-v4.1-flash`），只路由到不留存数据的服务商 |
 
 DeepSeek 和 OpenRouter 用同一组问题让通用大模型打分，**给出的概率未经校准**，面板上会注明「仅供参考」。风险描述文字仍由固定模板生成，不让模型写解释。没有 key 或检查失败时显示「检查未完成」，不会显示为安全；自定义敏感词的本地匹配始终可用。
 

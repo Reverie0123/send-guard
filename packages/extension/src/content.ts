@@ -15,6 +15,7 @@ import {
 import type { AnalyzeResponse, ConfigResponse, ContentConfig, ContentPush, ManualCheckResponse } from "./messages"
 import { locale, t } from "./i18n"
 import { GMAIL_EDITOR, GMAIL_SEND, gmailComposeRoot, gmailRecipientCount } from "./gmail"
+import { outlook, qqMail, type MailSpec } from "./mail-sites"
 import { patternMatchesUrl, supportedSiteFor } from "./sites"
 
 // =====================================================================
@@ -383,9 +384,19 @@ class Ui {
     })
   }
 
+  /** 挂靠的输入框还在页面上且可见（撰写窗口被关掉 / 隐藏时为 false） */
+  private anchorVisible(): boolean {
+    return !!this.anchor?.isConnected && this.anchor.getClientRects().length > 0
+  }
+
+  /** 定时调用：输入框消失后收起图标和面板（有的网站关撰写窗口时不触发滚动或缩放） */
+  checkAnchor(): void {
+    if ((this.icon || this.panel) && !this.anchorVisible()) this.hideAll()
+  }
+
   private reposition(): void {
     if (!this.anchor) return
-    if (!this.anchor.isConnected) return this.hideAll()
+    if (!this.anchorVisible()) return this.hideAll()
     const r = this.anchor.getBoundingClientRect()
     const vw = document.documentElement.clientWidth
     const vh = document.documentElement.clientHeight
@@ -599,7 +610,47 @@ const discordAdapter: SiteAdapter = {
   }
 }
 
-const ADAPTERS: Record<string, SiteAdapter> = { gmail: gmailAdapter, discord: discordAdapter }
+// ---- 其他网页邮箱（QQ 邮箱、Outlook）：点发送按钮 / Ctrl+Enter 拦截，放行时通过适配层点发送 ----
+function mailAttempt(spec: MailSpec, from: Element, start: boolean): SendAttempt | null {
+  const root = spec.composeRoot(from)
+  const editor = root?.querySelector<HTMLElement>(spec.editor)
+  const button = root && spec.findSendButton(root)
+  if (!editor || !button) return null
+  return { editor, start, send: () => withBypass(() => dispatchClick(button)) }
+}
+
+function mailAdapter(spec: MailSpec): SiteAdapter {
+  return {
+    events: ["pointerdown", "pointerup", "mousedown", "mouseup", "click", "keydown", "keyup"],
+    audience: editor => {
+      const root = spec.composeRoot(editor)
+      return root ? audienceFromCount(spec.recipientCount(root)) : undefined
+    },
+    detect(e) {
+      const t = eventTarget(e)
+      if (!t) return null
+      if (e instanceof MouseEvent) {
+        if (e.button !== 0) return null
+        const btn = spec.sendButtonFrom(t)
+        return btn ? mailAttempt(spec, btn, e.type === "click") : null
+      }
+      if (e instanceof KeyboardEvent) {
+        if (e.isComposing) return null
+        const btn = spec.sendButtonFrom(t)
+        if (btn && (e.key === "Enter" || e.key === " ")) return mailAttempt(spec, btn, e.type === "keydown")
+        if (e.type === "keydown" && e.key === "Enter" && (e.ctrlKey || e.metaKey)) return mailAttempt(spec, t, true)
+      }
+      return null
+    }
+  }
+}
+
+const ADAPTERS: Record<string, SiteAdapter> = {
+  gmail: gmailAdapter,
+  discord: discordAdapter,
+  qqmail: mailAdapter(qqMail),
+  outlook: mailAdapter(outlook)
+}
 
 /** 当前网站的适配器；未专门适配的网站为 undefined（只有手动检查 / 实时检查） */
 let activeAdapter: SiteAdapter | undefined
@@ -770,6 +821,8 @@ on(window, "pointerdown", e => {
 })
 on(window, "scroll", () => ui.scheduleReposition())
 on(window, "resize", () => ui.scheduleReposition())
+const anchorTimer = setInterval(() => ui.checkAnchor(), 1000)
+disposers.push(() => clearInterval(anchorTimer))
 on(document, "visibilitychange", () => {
   if (document.visibilityState === "visible") void refreshConfig()
 })

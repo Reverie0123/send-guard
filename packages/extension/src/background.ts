@@ -54,7 +54,8 @@ async function loadSettings(): Promise<Settings> {
   ])
   return {
     enabled: enabled !== "0",
-    provider: PROVIDERS.includes(provider as Provider) ? (provider as Provider) : "jev",
+    // TypeSafe 暂停了新账号注册（2026-09），新用户默认用 DeepSeek；已选过的服务保持不变
+    provider: PROVIDERS.includes(provider as Provider) ? (provider as Provider) : "deepseek",
     mode: mode === "realtime" ? "realtime" : "presend",
     realtimeConsent: consent === "1",
     recipientContext: recipientContext ?? "",
