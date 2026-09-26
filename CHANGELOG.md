@@ -2,6 +2,12 @@
 
 版本号只在根目录 `package.json` 维护，通过 `npm run version:sync` 同步。
 
+## [0.5.1] - 2026-09-26
+### Changed
+- 新增 `npm run pack:source`：用 git archive 打包源码，只含已提交的文件，不含 node_modules 和 .git，避免把 Windows 平台的依赖（如 esbuild 二进制）带给其他系统（影响范围：extension）
+### Fixed
+- README 和 packages/desktop 仍写着桌面版「计划从 v0.4.0 开始」，与当前版本不符；改为「计划中，尚未开始实现」（影响范围：extension）
+
 ## [0.5.0] - 2026-09-26
 ### Added
 - 新增 X（x.com）的发送前拦截：发帖、回复、引用的「发帖」按钮和 Ctrl+Enter；串推时检查正在编辑的那一条；私信（新版加密聊天）暂不支持（影响范围：extension）

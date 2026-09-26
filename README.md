@@ -1,6 +1,6 @@
 # Send Guard
 
-**当前版本：v0.5.0** · **[Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh)** · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [更新日志](CHANGELOG.md)
+**当前版本：v0.5.1** · **[Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh)** · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [更新日志](CHANGELOG.md)
 
 > 在线试玩不用安装、不用 API key：页面运行的是真实的扩展代码，示例消息的结果由 DeepSeek 预先生成。
 
@@ -85,7 +85,7 @@ DeepSeek 和 OpenRouter 用同一组问题让通用大模型打分，**给出的
 
 ## 桌面版计划
 
-`packages/desktop`：基于 Electron 的桌面悬浮窗，用快捷键触发检查，覆盖微信 PC 版、QQ 等桌面聊天软件。与扩展共用 `packages/core`，计划从 v0.4.0 开始。
+`packages/desktop`：基于 Electron 的桌面悬浮窗，用快捷键触发检查，覆盖微信 PC 版、QQ 等桌面聊天软件。与扩展共用 `packages/core`。计划中，尚未开始实现，将在浏览器扩展稳定后启动。
 
 ## 移动端计划
 
@@ -99,6 +99,7 @@ iOS Safari 扩展，计划中。
 | `npm test` | 本地单元测试（不联网），发布流程会自动运行 |
 | `npm run calibrate` | 用真实接口跑 `tests/calibration/cases.json` 的校准样本，统计漏报 / 误报（需环境变量 `DEEPSEEK_API_KEY`，一轮约 ¥0.1） |
 | `npm run package` | 生成上架用的 `release-artifacts/send-guard-v{版本}.zip` |
+| `npm run pack:source` | 打包源码 `release-artifacts/send-guard-src-v{版本}.zip`：只含已提交的文件，不含 `node_modules` 和 `.git`，发给别人用这个（对方解压后 `npm ci`） |
 | `npm run store:screenshots` | 重新生成商店截图 `store/screenshots/*.png` |
 | `npm run build:demo` | 用真实的 content.ts 构建在线试玩脚本 `docs/demo/content-*.js` |
 | `npm run demo:results` | 重新生成试玩页的示例结果（需 `DEEPSEEK_API_KEY`） |
