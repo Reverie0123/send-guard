@@ -26,32 +26,30 @@ English:
 中文：
 
 ```
-Send Guard 在你按下发送键之前做一次隐私检查。
+Send Guard runs a privacy check right before you send a message.
 
-很多隐私泄露不是故意的：在群里随口一句「小李住院了」「老王被裁了」，就把别人不愿公开的事告诉了一群人。Send Guard 会在发送前判断：
-• 这条消息是否透露了别人的私事；
-• 收件人能否据此认出或找到具体的人；
-• 涉及哪类敏感信息（健康、财务、感情、位置、职业）；
-• 发到群里还是私聊，风险是否超出了应有的范围。
+Many privacy leaks are accidental: a casual "Li is in the hospital" in a group chat tells everyone something that wasn't yours to share. Before sending, Send Guard estimates whether the message reveals someone else's private information, whether the recipients could identify that person, which sensitive category is involved (health, finances, relationships, location, work), and whether a group or public audience makes it riskier.
 
-只在值得复核时弹出提醒，你可以「仍然发送」或「我再看看」，它从不阻止你发送。
+It only warns when a second look is worthwhile. You can always "Send anyway" - it never blocks you.
 
-支持的网站
-• Gmail、Outlook、QQ 邮箱、Discord：按发送时自动检查（均已在真实网页验证）
-• 其他网站：授权后可手动检查当前输入框
+Supported sites
+- Gmail, Outlook, QQ Mail, Discord and X (posts and direct messages): automatic check when you press Send (verified on the live sites)
+- Other sites: after you grant access, a shield button appears when you focus a text box. Nothing is checked until you click it, and you can turn it on or off per site
 
-隐私设计
-• 没有自己的服务器，不收集任何数据
-• 默认只在按发送时检查；客套话、不涉及他人的短句在本地放行，不上传
-• 自定义敏感词只在本地匹配
-• 不读取收件人的名字、邮箱、用户名；只可选地使用「私聊 / 群聊 + 人数区间」
-• API key 只保存在本机，网页拿不到
-• 检查失败显示「检查未完成」，绝不误报为安全
+Privacy by design
+- No server of its own; the extension collects no data
+- Short trivial messages and messages that don't involve other people are skipped locally and never uploaded
+- Custom sensitive words are matched locally only
+- Never reads recipient names, email addresses or usernames; only an optional coarse hint (direct message, group or public post, approximate size)
+- API keys stay on your device and are never exposed to web pages
+- A failed check shows "check incomplete" - never "safe"
 
-检测服务
-使用你自己的 API key：DeepSeek（推荐）、TypeSafe Jev 或 OpenRouter。
+Detection service
+Bring your own API key: DeepSeek (recommended), TypeSafe Jev or OpenRouter.
 
-开源：https://github.com/Reverie0123/send-guard
+Try it without installing: https://reverie0123.github.io/send-guard/demo/
+Open source: https://github.com/Reverie0123/send-guard
+Privacy policy: https://reverie0123.github.io/send-guard/privacy.html
 ```
 
 English:
@@ -116,16 +114,17 @@ Open source: https://github.com/Reverie0123/send-guard
 Send Guard checks a message for third-party privacy disclosure right before it is sent. It uses the user's own API key; no account or server of ours is involved. The UI follows the browser language (English, or Chinese on a Chinese browser).
 
 How to test without an API key (recommended for review):
-1. Open https://discord.com, https://mail.google.com or https://outlook.live.com, click the extension icon, then "Enable on this site" (在此网站启用) and allow the permission prompt.
-2. Type a message of 20+ characters and press Enter (Discord) or Send / Ctrl+Enter (Gmail, Outlook).
-3. Sending is paused and a panel appears. Without an API key it shows "Check incomplete" (检查未完成) - by design, a failed check is never shown as "safe". Click "Send anyway" (仍然发送) to send, or "Let me review" (我再看看) to cancel.
-4. Local-only feature (no key needed): in the popup, enter a word under "Custom sensitive words" (自定义敏感词), e.g. "secret". Typing a message containing it and pressing Send shows a red panel; nothing is uploaded.
+1. Open https://discord.com, https://mail.google.com, https://outlook.live.com or https://x.com, click the extension icon, then "Enable on this site" and allow the permission prompt.
+2. Type a message of 20+ characters and press Enter (Discord, X direct messages), Send / Ctrl+Enter (Gmail, Outlook) or Post (X).
+3. Sending is paused and a panel appears. Without an API key it shows "Check incomplete" - by design, a failed check is never shown as "safe". Click "Send anyway" to send, or "Let me review" to cancel.
+4. Local-only feature (no key needed): in the popup, enter a word under "Custom sensitive words", e.g. "secret". A message containing it shows a red panel on Send; nothing is uploaded.
+5. On any other site you enable: focus a multi-line text box and a shield button appears in its corner. It checks only when clicked. The popup has a per-site switch for it.
 
 No-install demo of the same code with pre-computed results: https://reverie0123.github.io/send-guard/demo/
 
-Optional, with a key: choose "DeepSeek" in the popup, paste a DeepSeek API key (platform.deepseek.com), click "Save & test connection". A message like "Li in our class failed three exams and may be expelled" sent in a server channel then shows risk scores.
+Optional, with a key: choose "DeepSeek" in the popup, paste a DeepSeek API key (platform.deepseek.com), click "Save & test connection".
 
-Changes in this version: English UI, Outlook and QQ Mail support, group vs. direct message detection, better detection of sarcastic remarks.
+Changes in this version: X (x.com) posts and direct messages; the shield button on focused text boxes with a per-site switch.
 
 Permissions: host access to other sites is optional and only requested when the user clicks "Enable on this site". api.typesafe.ai / api.deepseek.com / openrouter.ai are the detection services the user can choose. No remote code.
 Privacy policy: https://reverie0123.github.io/send-guard/privacy.html
