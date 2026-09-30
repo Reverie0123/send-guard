@@ -1,6 +1,6 @@
 # Send Guard
 
-**当前版本：v0.6.0** · **[Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh)** · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [更新日志](CHANGELOG.md)
+**当前版本：v0.6.1** · **[Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh)** · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [更新日志](CHANGELOG.md)
 
 > 在线试玩不用安装、不用 API key：页面运行的是真实的扩展代码，示例消息的结果由 DeepSeek 预先生成。
 

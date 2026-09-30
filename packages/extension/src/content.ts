@@ -84,7 +84,8 @@ function applyConfig(c: ContentConfig): void {
     cancelCurrent()
     ui.hideAll()
   } else if (ui.iconState === null || ui.iconState === "idle") {
-    rest() // 「自动唤醒」开关可能刚被改过
+    syncFocus()
+    rest() // 刚拿到配置，或「自动唤醒」开关刚被改过
   }
 }
 
@@ -543,6 +544,25 @@ function wakeEligible(el: HTMLElement): boolean {
   return el.getBoundingClientRect().width >= 160
 }
 
+/** 真正有焦点的元素（穿过 open 的 Shadow DOM） */
+function deepActiveElement(): Element | null {
+  let a: Element | null = document.activeElement
+  while (a?.shadowRoot?.activeElement) a = a.shadowRoot.activeElement
+  return a
+}
+
+/**
+ * 补上没收到 focusin 的情况：很多网站（如 ChatGPT）一打开就自动聚焦输入框，
+ * 那时脚本还没注入或还没拿到配置；之后用户再点进去也不会再触发 focusin。
+ */
+function syncFocus(): void {
+  if (focusedEl?.isConnected) return
+  const el = editableFrom(deepActiveElement())
+  if (!el) return
+  focusedEl = el
+  lastFocused ??= el
+}
+
 /** 没有检查结果要显示时图标的去向：开了自动唤醒且输入框仍有焦点 → 待命图标；否则全部收起 */
 function rest(el: HTMLElement | null = focusedEl): void {
   if (el && el.isConnected && focusedEl === el && wakeOn() && wakeEligible(el)) ui.showIdle(el)
@@ -946,6 +966,14 @@ const clearStaleIcon = () => setTimeout(() => {
 }, 100)
 on(document, "keyup", clearStaleIcon)
 on(document, "click", clearStaleIcon)
+// 输入框早就有焦点（没触发 focusin）时，点一下或打字也能唤醒
+const wakeIfFocused = (): void => {
+  if (presendBusy || ui.iconState !== null) return
+  syncFocus()
+  if (focusedEl) rest(focusedEl)
+}
+on(document, "pointerup", wakeIfFocused)
+on(document, "keyup", wakeIfFocused)
 on(window, "pointerdown", e => {
   if (ui.panelOpen && !ui.containsEvent(e)) ui.hidePanel()
 })
