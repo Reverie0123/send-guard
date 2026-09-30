@@ -29,7 +29,8 @@
               recipientContext: "",
               relationship: "",
               rulesVersion: 0,
-              autoAudience: true
+              autoAudience: true,
+              siteWake: {}
             }
           }
         }

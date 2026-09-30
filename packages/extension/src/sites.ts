@@ -23,6 +23,14 @@ export function supportedSiteFor(hostname: string): SupportedSite | undefined {
   return SUPPORTED_SITES.find(s => s.hosts.includes(hostname))
 }
 
+/**
+ * 自动唤醒：输入框获得焦点时在角上显示检查按钮。
+ * 默认值：已专门适配的网站关闭（按发送时本来就会检查），其他已授权网站开启；用户可按网站覆盖。
+ */
+export function wakeEnabled(overrides: Record<string, boolean> | undefined, hostname: string): boolean {
+  return overrides?.[hostname] ?? !supportedSiteFor(hostname)
+}
+
 /** 判断一个 URL 是否被某个 match pattern（如 https://*.example.com/*、<all_urls>）覆盖 */
 export function patternMatchesUrl(pattern: string, url: string): boolean {
   let u: URL

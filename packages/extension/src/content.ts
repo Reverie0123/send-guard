@@ -16,7 +16,7 @@ import type { AnalyzeResponse, ConfigResponse, ContentConfig, ContentPush, Manua
 import { locale, t } from "./i18n"
 import { GMAIL_EDITOR, GMAIL_SEND, gmailComposeRoot, gmailRecipientCount } from "./gmail"
 import { outlook, qqMail, xPost, type MailSpec } from "./mail-sites"
-import { patternMatchesUrl, supportedSiteFor } from "./sites"
+import { patternMatchesUrl, supportedSiteFor, wakeEnabled } from "./sites"
 
 // =====================================================================
 // 生命周期：防重复注入；扩展重载 / 权限撤销时彻底卸载
@@ -83,6 +83,8 @@ function applyConfig(c: ContentConfig): void {
   if (!c.enabled) {
     cancelCurrent()
     ui.hideAll()
+  } else if (ui.iconState === null || ui.iconState === "idle") {
+    rest() // 「自动唤醒」开关可能刚被改过
   }
 }
 
@@ -218,7 +220,8 @@ async function check(el: HTMLElement): Promise<Outcome | null> {
   return outcome
 }
 
-type IconState = "loading" | "warn" | "red" | "error"
+/** idle：自动唤醒的待命图标，点一下才检查 */
+type IconState = "idle" | "loading" | "warn" | "red" | "error"
 
 function iconStateOf(o: Outcome): IconState | null {
   switch (o.kind) {
@@ -248,6 +251,8 @@ const STYLE = `
   cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.25); background: #fff; border: 2px solid #cbd5e0;
   user-select: none;
 }
+.icon.idle { opacity: .7; }
+.icon.idle:hover { opacity: 1; border-color: #2b6cb0; }
 .icon.loading { cursor: default; animation: pulse 1s ease-in-out infinite; }
 .icon.warn { border-color: #dd6b20; background: #fffaf0; }
 .icon.red { border-color: #e53e3e; background: #fff5f5; }
@@ -303,9 +308,17 @@ class Ui {
   private lastOutcome: Outcome | null = null
   private lastMode: PanelMode = { kind: "info" }
   private raf = 0
+  private state: IconState | null = null
+  /** 点击待命图标时执行（手动检查当前输入框） */
+  onIdleClick: ((anchor: HTMLElement) => void) | null = null
 
   get anchorEl(): HTMLElement | null {
     return this.anchor
+  }
+
+  /** 当前图标状态；没有图标时为 null */
+  get iconState(): IconState | null {
+    return this.icon ? this.state : null
   }
 
   private ensureRoot(): ShadowRoot {
@@ -326,21 +339,36 @@ class Ui {
     this.anchor = anchor
     if (!this.icon) {
       this.icon = h("div", { class: "icon" })
+      // 不让点击图标抢走输入框的焦点
+      this.icon.addEventListener("mousedown", e => e.preventDefault())
       this.icon.addEventListener("click", () => {
+        if (this.state === "idle") {
+          if (this.anchor) this.onIdleClick?.(this.anchor)
+          return
+        }
         if (this.panel) this.hidePanel()
         else if (this.lastOutcome && this.anchor) this.showPanel(this.anchor, this.lastOutcome, this.lastMode)
       })
       root.append(this.icon)
     }
+    this.state = state
     this.icon.className = `icon ${state}`
-    this.icon.textContent = { loading: "🔍", warn: "⚠️", red: "🔴", error: "?" }[state]
-    this.icon.title = { loading: t.iconLoading, warn: t.iconWarn, red: t.iconRed, error: t.iconError }[state]
+    this.icon.textContent = { idle: "🛡️", loading: "🔍", warn: "⚠️", red: "🔴", error: "?" }[state]
+    this.icon.title = { idle: t.iconIdle, loading: t.iconLoading, warn: t.iconWarn, red: t.iconRed, error: t.iconError }[state]
     this.reposition()
+  }
+
+  /** 待命图标：收起面板、丢掉旧结果 */
+  showIdle(anchor: HTMLElement): void {
+    this.hidePanel()
+    this.lastOutcome = null
+    this.showIcon(anchor, "idle")
   }
 
   hideIcon(): void {
     this.icon?.remove()
     this.icon = null
+    this.state = null
   }
 
   showPanel(anchor: HTMLElement, outcome: Outcome, mode: PanelMode): void {
@@ -498,6 +526,30 @@ function buildPanel(o: Outcome, mode: PanelMode): HTMLElement {
 const ui = new Ui()
 
 // =====================================================================
+// 自动唤醒：输入框获得焦点时在角上显示待命图标，点一下才检查（不会自动上传）。
+// 每个网站可在弹窗里单独开关；默认在没有专门适配的网站上开启。
+// =====================================================================
+
+/** 当前有焦点的输入框（Shadow DOM 里的也算） */
+let focusedEl: HTMLElement | null = null
+
+function wakeOn(): boolean {
+  return !!config?.enabled && wakeEnabled(config.siteWake, location.hostname)
+}
+
+/** 只在多行输入框（textarea / contenteditable）上唤醒；搜索框这类单行 input、密码和支付字段不打扰 */
+function wakeEligible(el: HTMLElement): boolean {
+  if (el instanceof HTMLInputElement || isSensitiveField(el)) return false
+  return el.getBoundingClientRect().width >= 160
+}
+
+/** 没有检查结果要显示时图标的去向：开了自动唤醒且输入框仍有焦点 → 待命图标；否则全部收起 */
+function rest(el: HTMLElement | null = focusedEl): void {
+  if (el && el.isConnected && focusedEl === el && wakeOn() && wakeEligible(el)) ui.showIdle(el)
+  else ui.hideAll()
+}
+
+// =====================================================================
 // 站点适配层（发送前拦截）。每个站点单独实现选择器和「实际发送」动作。
 // =====================================================================
 
@@ -584,7 +636,7 @@ function discordAutocompleteOpen(editor: HTMLElement): boolean {
   return !!document.querySelector('[class*="autocomplete"] [role="option"], [class*="autocomplete"] [role="listbox"]')
 }
 
-function discordSendEnter(editor: HTMLElement): void {
+function sendEnter(editor: HTMLElement): void {
   editor.focus()
   const ev = new KeyboardEvent("keydown", { key: "Enter", code: "Enter", bubbles: true, cancelable: true, composed: true })
   // KeyboardEventInit 不支持 keyCode，补上以兼容依赖 keyCode 的处理逻辑
@@ -606,7 +658,7 @@ const discordAdapter: SiteAdapter = {
     if (e.key !== "Enter" || e.shiftKey || e.altKey || e.isComposing || e.keyCode === 229) return null
     const editor = eventTarget(e)?.closest<HTMLElement>(DISCORD_EDITOR)
     if (!editor || discordAutocompleteOpen(editor)) return null
-    return { editor, start: true, send: () => discordSendEnter(editor) }
+    return { editor, start: true, send: () => sendEnter(editor) }
   }
 }
 
@@ -648,12 +700,67 @@ function mailAdapter(spec: MailSpec): SiteAdapter {
   }
 }
 
+// ---- X（x.com）：发帖 / 回复 / 引用（mail-sites.ts 的 xPost）+ 私信 ----
+// 私信（x.com/i/chat）整个界面渲染在一个 open 的 Shadow DOM 里：输入框是 <textarea data-testid="dm-composer-textarea">，
+// 在 <form data-testid="dm-composer-form"> 内；Enter 发送、Shift+Enter 换行，有文字时出现发送按钮。
+const X_DM_EDITOR = 'textarea[data-testid="dm-composer-textarea"]'
+const X_DM_FORM = '[data-testid="dm-composer-form"]'
+
+function xDmSendButton(form: Element): HTMLElement | null {
+  return form.querySelector<HTMLElement>('button[type="submit"], button[data-testid*="send" i], button[aria-label*="send" i]')
+}
+
+function xDmAttempt(editor: HTMLElement, start: boolean): SendAttempt {
+  return {
+    editor,
+    start,
+    send: () => {
+      const form = editor.closest(X_DM_FORM)
+      const button = form && xDmSendButton(form)
+      if (button) withBypass(() => dispatchClick(button))
+      else sendEnter(editor)
+    }
+  }
+}
+
+function xDmDetect(e: Event): SendAttempt | null {
+  const t = eventTarget(e)
+  if (!t) return null
+  if (e instanceof KeyboardEvent) {
+    if (e.type !== "keydown" || e.key !== "Enter" || e.shiftKey || e.altKey || e.isComposing || e.keyCode === 229) return null
+    const editor = t.closest<HTMLElement>(X_DM_EDITOR)
+    return editor ? xDmAttempt(editor, true) : null
+  }
+  if (e instanceof MouseEvent) {
+    if (e.button !== 0) return null
+    const form = t.closest(X_DM_FORM)
+    const button = form && xDmSendButton(form)
+    const editor = form?.querySelector<HTMLElement>(X_DM_EDITOR)
+    if (!button || !editor || !button.contains(t)) return null
+    return xDmAttempt(editor, e.type === "click")
+  }
+  return null
+}
+
+const xPostAdapter = mailAdapter(xPost)
+const xAdapter: SiteAdapter = {
+  events: xPostAdapter.events,
+  audience: editor => {
+    if (!editor.matches(X_DM_EDITOR)) return xPostAdapter.audience?.(editor)
+    // /i/chat/<id>-<id> 是一对一私信；其他会话 ID 是群聊
+    const m = /^\/i\/chat\/([^/]+)/.exec(location.pathname)
+    if (!m) return undefined
+    return /^\d+-\d+$/.test(m[1]!) ? { kind: "direct" } : { kind: "group", size: "unknown" }
+  },
+  detect: e => xDmDetect(e) ?? xPostAdapter.detect(e)
+}
+
 const ADAPTERS: Record<string, SiteAdapter> = {
   gmail: gmailAdapter,
   discord: discordAdapter,
   qqmail: mailAdapter(qqMail),
   outlook: mailAdapter(outlook),
-  x: mailAdapter(xPost)
+  x: xAdapter
 }
 
 /** 当前网站的适配器；未专门适配的网站为 undefined（只有手动检查 / 实时检查） */
@@ -697,6 +804,7 @@ async function runPresend(attempt: SendAttempt): Promise<void> {
     // 无风险 / 未达上传条件：直接执行发送，不打扰用户
     ui.hideAll()
     attempt.send()
+    rest(editor)
     return
   }
   ui.showIcon(editor, state)
@@ -705,6 +813,7 @@ async function runPresend(attempt: SendAttempt): Promise<void> {
     onSend: () => {
       ui.hideAll()
       attempt.send()
+      rest(editor)
     },
     onBack: () => {
       ui.hidePanel()
@@ -724,9 +833,10 @@ function onUserInput(e: Event): void {
   const el = editableFrom(eventTarget(e))
   if (!el) return
 
+  focusedEl = el // 脚本晚于聚焦注入时补上
   if (config.mode === "presend") {
-    // 内容变了，旧提示作废
-    if (ui.anchorEl === el && !presendBusy) ui.hideAll()
+    // 内容变了，旧提示作废（开了自动唤醒则回到待命图标）
+    if (ui.anchorEl === el && !presendBusy && ui.iconState !== "idle") rest(el)
     return
   }
 
@@ -744,7 +854,7 @@ async function runRealtime(el: HTMLElement): Promise<void> {
   if (!outcome || !alive) return
   const state = iconStateOf(outcome)
   if (!state) {
-    ui.hideAll()
+    rest(el)
     return
   }
   ui.showIcon(el, state)
@@ -763,18 +873,22 @@ function manualCheck(): ManualCheckResponse {
   const el = lastFocused?.isConnected ? lastFocused : null
   if (!el) return { ok: false, reason: "no-input" }
   if (isSensitiveField(el)) return { ok: false, reason: "sensitive-field" }
-  void (async () => {
-    ui.hidePanel()
-    ui.showIcon(el, "loading")
-    const outcome = await check(el)
-    if (!outcome || !alive) return
-    const state = iconStateOf(outcome)
-    if (state) ui.showIcon(el, state)
-    else ui.hideIcon()
-    ui.showPanel(el, outcome, { kind: "info" })
-  })()
+  void runManual(el)
   return { ok: true }
 }
+
+/** 检查一个输入框并展开结果面板（弹窗按钮和待命图标共用） */
+async function runManual(el: HTMLElement): Promise<void> {
+  ui.hidePanel()
+  ui.showIcon(el, "loading")
+  const outcome = await check(el)
+  if (!outcome || !alive) return
+  const state = iconStateOf(outcome)
+  if (state) ui.showIcon(el, state)
+  else rest(el)
+  ui.showPanel(el, outcome, { kind: "info" })
+}
+ui.onIdleClick = el => void runManual(el)
 
 // =====================================================================
 // 启动
@@ -809,14 +923,26 @@ disposers.push(() => {
 
 on(document, "focusin", e => {
   const el = editableFrom(eventTarget(e))
-  if (el) lastFocused = el
+  focusedEl = el
+  if (!el) return
+  lastFocused = el
+  // 自动唤醒：不打断进行中的检查，也不盖掉这个输入框上已有的结果
+  if (presendBusy || ui.panelOpen || (ui.anchorEl === el && ui.iconState)) return
+  if (ui.iconState === null || ui.iconState === "idle") rest(el)
+})
+on(document, "focusout", () => {
+  focusedEl = null
+  // 焦点可能马上落到另一个输入框，稍等再收起待命图标
+  setTimeout(() => {
+    if (alive && !focusedEl && ui.iconState === "idle") ui.hideAll()
+  }, 150)
 })
 on(document, "input", onUserInput)
 on(document, "compositionend", onUserInput)
 // 站点发送后会直接清空输入框（不触发 input），此时收起过期的图标
 const clearStaleIcon = () => setTimeout(() => {
   const anchor = ui.anchorEl
-  if (anchor && !presendBusy && (!anchor.isConnected || !readText(anchor).trim())) ui.hideAll()
+  if (anchor && !presendBusy && ui.iconState !== "idle" && (!anchor.isConnected || !readText(anchor).trim())) rest(anchor)
 }, 100)
 on(document, "keyup", clearStaleIcon)
 on(document, "click", clearStaleIcon)

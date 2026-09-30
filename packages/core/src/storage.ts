@@ -21,6 +21,7 @@ export const STORAGE_KEYS = {
   recipientContext: "recipientContext",
   relationship: "relationship",
   sensitiveWords: "sensitiveWords",       // 逗号分隔原文
+  siteWake: "siteWake",                   // JSON：{ 域名: true/false }，各网站是否在输入框获得焦点时显示检查按钮
   rulesVersion: "rulesVersion"            // 影响判断的设置每变一次 +1，用于缓存失效
 } as const
 

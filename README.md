@@ -1,6 +1,6 @@
 # Send Guard
 
-**当前版本：v0.5.1** · **[Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh)** · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [更新日志](CHANGELOG.md)
+**当前版本：v0.6.0** · **[Edge 商店安装](https://microsoftedge.microsoft.com/addons/detail/jjcpkbijejeobllcnhkafbmfhdfepbkh)** · **[在线试玩](https://reverie0123.github.io/send-guard/demo/)** · [更新日志](CHANGELOG.md)
 
 > 在线试玩不用安装、不用 API key：页面运行的是真实的扩展代码，示例消息的结果由 DeepSeek 预先生成。
 
@@ -14,8 +14,8 @@ Send Guard 在你按下发送键之前做一次隐私检查：结合消息内容
 | Discord（discord.com） | 发送前拦截：Enter | 已验证（Edge 153，2026-09-25） |
 | QQ 邮箱（wx.mail.qq.com） | 发送前拦截：发送按钮 / Ctrl+Enter | 已验证（Edge 153，2026-09-26） |
 | Outlook（outlook.live.com） | 发送前拦截：发送按钮 / Ctrl+Enter | 已验证（Edge 153，2026-09-26）；工作 / 学校账号的 outlook.office.com 为同一套网页，未单独验证 |
-| X（x.com） | 发送前拦截：发帖 / 回复 / 引用的「发帖」按钮 / Ctrl+Enter，受众按「公开发布」处理 | 已验证（Edge 153，2026-09-26）；私信（新版加密聊天）暂不支持 |
-| 其他已授权网站 | 手动检查：点扩展图标 →「检查当前输入框」 | — |
+| X（x.com） | 发送前拦截：发帖 / 回复 / 引用的「发帖」按钮 / Ctrl+Enter，受众按「公开发布」处理；私信（新版聊天）按 Enter / 发送按钮，一对一按私聊、群聊按群处理 | 发帖已验证（Edge 153，2026-09-26）；私信已验证（Edge，2026-09-30） |
+| 其他已授权网站 | 自动唤醒：点进多行输入框时角上出现 🛡️，点一下才检查（可在弹窗里按网站开关）；也可以点扩展图标 →「检查当前输入框」 | 本地测试页验证（2026-09-30） |
 
 **不支持**在所有网站上做发送前拦截。每个网站的发送按钮、Enter 逻辑和表单结构都不一样，只有专门适配过的网站才会拦截。
 

@@ -42,7 +42,7 @@ const API_ORIGINS = ["https://api.typesafe.ai/*", "https://api.deepseek.com/*", 
 // ---------- 设置 ----------
 
 async function loadSettings(): Promise<Settings> {
-  const [enabled, provider, mode, consent, recipientContext, relationship, sensitiveWords, autoAudience] = await Promise.all([
+  const [enabled, provider, mode, consent, recipientContext, relationship, sensitiveWords, autoAudience, siteWake] = await Promise.all([
     storage.get(STORAGE_KEYS.enabled),
     storage.get(STORAGE_KEYS.provider),
     storage.get(STORAGE_KEYS.mode),
@@ -50,7 +50,8 @@ async function loadSettings(): Promise<Settings> {
     storage.get(STORAGE_KEYS.recipientContext),
     storage.get(STORAGE_KEYS.relationship),
     storage.get(STORAGE_KEYS.sensitiveWords),
-    storage.get(STORAGE_KEYS.autoAudience)
+    storage.get(STORAGE_KEYS.autoAudience),
+    storage.get(STORAGE_KEYS.siteWake)
   ])
   return {
     enabled: enabled !== "0",
@@ -61,8 +62,29 @@ async function loadSettings(): Promise<Settings> {
     recipientContext: recipientContext ?? "",
     relationship: RELATIONSHIPS.includes(relationship as Relationship) ? (relationship as Relationship) : "",
     sensitiveWords: sensitiveWords ?? "",
-    autoAudience: autoAudience !== "0"
+    autoAudience: autoAudience !== "0",
+    siteWake: parseSiteWake(siteWake)
   }
+}
+
+function parseSiteWake(raw: string | null): Record<string, boolean> {
+  try {
+    const v: unknown = JSON.parse(raw ?? "{}")
+    if (typeof v !== "object" || v === null || Array.isArray(v)) return {}
+    return Object.fromEntries(Object.entries(v).filter(([, on]) => typeof on === "boolean")) as Record<string, boolean>
+  } catch {
+    return {}
+  }
+}
+
+/** 按网站开关「自动唤醒」；最多记 200 个网站，超出时丢掉最早的 */
+async function setSiteWake(host: string, on: boolean): Promise<void> {
+  const map = (await loadSettings()).siteWake
+  delete map[host]
+  map[host] = on
+  const entries = Object.entries(map).slice(-200)
+  await storage.set(STORAGE_KEYS.siteWake, JSON.stringify(Object.fromEntries(entries)))
+  await broadcast({ type: "configChanged", config: await loadContentConfig() })
 }
 
 function parseWords(raw: string): string[] {
@@ -79,7 +101,8 @@ async function loadContentConfig(): Promise<ContentConfig> {
     recipientContext: s.recipientContext,
     relationship: s.relationship,
     rulesVersion: await storage.getNumber(STORAGE_KEYS.rulesVersion),
-    autoAudience: s.autoAudience
+    autoAudience: s.autoAudience,
+    siteWake: s.siteWake
   }
 }
 
@@ -388,6 +411,9 @@ chrome.runtime.onMessage.addListener((msg: ContentRequest | PopupRequest, sender
       return reply(testConnection())
     case "removeSite":
       return reply(chrome.permissions.remove({ origins: [msg.origin] }))
+    case "setSiteWake":
+      if (typeof msg.host !== "string" || !/^[a-z0-9.-]{1,253}$/i.test(msg.host) || typeof msg.on !== "boolean") return false
+      return reply(setSiteWake(msg.host.toLowerCase(), msg.on).then(() => true))
     default:
       return false
   }

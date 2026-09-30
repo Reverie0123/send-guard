@@ -32,6 +32,7 @@ const zh = {
   iconWarn: "发送前注意，点击查看",
   iconRed: "高风险，点击查看",
   iconError: "检查未完成，请确认 API key",
+  iconIdle: "Send Guard：点击检查这条消息",
   summaryEnd: "。",
 
   // 弹窗
@@ -66,6 +67,8 @@ const zh = {
   relStranger: "陌生人",
   relGroup: "群组",
   relOther: "其他",
+  siteWake: "点进输入框时显示检查按钮",
+  siteWakeHint: "在本网站的输入框角上显示一个盾牌图标，点一下才检查，不会自动上传",
   autoAudience: "自动识别发送对象",
   autoAudienceHint: "识别当前是私聊还是群聊、大约多少人，一起发给检测服务帮助判断。只传这两项，不读取也不上传名字、邮箱、用户名",
   words: "自定义敏感词",
@@ -130,6 +133,7 @@ const en: Strings = {
   iconWarn: "Check before sending — click to see why",
   iconRed: "High risk — click to see why",
   iconError: "Check incomplete — please verify your API key",
+  iconIdle: "Send Guard: click to check this message",
   summaryEnd: ".",
 
   enable: "Enable Send Guard",
@@ -163,6 +167,8 @@ const en: Strings = {
   relStranger: "Stranger",
   relGroup: "Group",
   relOther: "Other",
+  siteWake: "Show a check button when a text box is focused",
+  siteWakeHint: "Shows a shield icon in the corner of text boxes on this site. Nothing is uploaded until you click it",
   autoAudience: "Detect the audience automatically",
   autoAudienceHint: "Detects direct message vs. group and roughly how many people, and sends only that to the detection service. Never reads or uploads names, emails or usernames",
   words: "Custom sensitive words",

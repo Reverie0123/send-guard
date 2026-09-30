@@ -12,7 +12,7 @@ import {
 } from "@send-guard/core"
 import type { ManualCheckResponse, PopupRequest, PopupState, Settings, TestConnectionResponse } from "./messages"
 import { locale, t } from "./i18n"
-import { patternMatchesUrl, SUPPORTED_SITES, supportedSiteFor } from "./sites"
+import { patternMatchesUrl, SUPPORTED_SITES, supportedSiteFor, wakeEnabled } from "./sites"
 
 // 静态文案：data-i18n 填文字，data-i18n-ph 填 placeholder
 document.documentElement.lang = locale === "zh" ? "zh-CN" : "en"
@@ -33,6 +33,8 @@ const el = {
   enableSite: $<HTMLButtonElement>("enableSite"),
   manualCheck: $<HTMLButtonElement>("manualCheck"),
   siteMsg: $("siteMsg"),
+  siteWakeBox: $("siteWakeBox"),
+  siteWake: $<HTMLInputElement>("siteWake"),
   provider: $<HTMLSelectElement>("provider"),
   providerNote: $("providerNote"),
   apiKey: $<HTMLInputElement>("apiKey"),
@@ -112,7 +114,7 @@ function renderProvider(): void {
 }
 
 function renderCurrentSite(): void {
-  el.enableSite.hidden = el.manualCheck.hidden = true
+  el.enableSite.hidden = el.manualCheck.hidden = el.siteWakeBox.hidden = true
   el.siteTag.textContent = ""
   tabPattern = null
   let url: URL | null = null
@@ -133,6 +135,8 @@ function renderCurrentSite(): void {
     el.siteTag.textContent = supported ? t.tagPresend : t.tagManual
     el.siteTag.className = supported ? "tag verified" : "tag"
     el.manualCheck.hidden = false
+    el.siteWakeBox.hidden = false
+    el.siteWake.checked = wakeEnabled(state.settings.siteWake, url.hostname)
   } else {
     el.siteTag.textContent = t.tagDisabled
     el.siteTag.className = "tag"
@@ -183,6 +187,13 @@ function renderStats(): void {
 // ---------- 事件 ----------
 
 el.enabled.addEventListener("change", () => saveSettings({ enabled: el.enabled.checked }))
+
+el.siteWake.addEventListener("change", async () => {
+  if (!tab?.url) return
+  const host = new URL(tab.url).hostname
+  state.settings.siteWake[host] = el.siteWake.checked
+  await send({ type: "setSiteWake", host, on: el.siteWake.checked })
+})
 
 el.provider.addEventListener("change", async () => {
   const provider = el.provider.value as Provider

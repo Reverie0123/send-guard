@@ -11,6 +11,7 @@ export interface ContentConfig {
   relationship: Relationship | ""
   rulesVersion: number
   autoAudience: boolean           // 是否自动识别发送对象（群聊 / 私聊）
+  siteWake: Record<string, boolean>  // 各网站的「自动唤醒」开关（域名 → 开 / 关），未设置的用默认值
 }
 
 /** getConfig 的响应：allowed=false 表示本页所在网站已被撤销授权 */
@@ -28,6 +29,7 @@ export interface Settings {
   relationship: Relationship | ""
   sensitiveWords: string
   autoAudience: boolean
+  siteWake: Record<string, boolean>
 }
 
 export interface MonthStats {
@@ -67,6 +69,7 @@ export type PopupRequest =
   | { type: "saveModel"; provider: LlmProvider; model: string }
   | { type: "testConnection" }
   | { type: "removeSite"; origin: string }
+  | { type: "setSiteWake"; host: string; on: boolean }
 
 export type TestConnectionResponse = { ok: true } | { ok: false; reason: string }
 
