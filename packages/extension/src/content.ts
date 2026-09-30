@@ -323,7 +323,12 @@ class Ui {
   }
 
   private ensureRoot(): ShadowRoot {
-    if (this.root && this.host?.isConnected) return this.root
+    if (this.root && this.host) {
+      // 有的网站（如 ChatGPT）加载后会整页重新渲染，把挂在 <html> 下的容器一起清掉；
+      // 原样挂回去（图标、面板都还在里面），不能新建容器——否则已有的图标留在旧容器里，再也看不见
+      if (!this.host.isConnected) document.documentElement.append(this.host)
+      return this.root
+    }
     this.host = document.createElement("send-guard-ui")
     this.root = this.host.attachShadow({ mode: "closed" })
     this.root.append(h("style", { text: STYLE }))
@@ -420,7 +425,13 @@ class Ui {
 
   /** 定时调用：输入框消失后收起图标和面板（有的网站关撰写窗口时不触发滚动或缩放） */
   checkAnchor(): void {
-    if ((this.icon || this.panel) && !this.anchorVisible()) this.hideAll()
+    if (!this.icon && !this.panel) return
+    if (!this.anchorVisible()) return this.hideAll()
+    // 容器被网页清掉了：挂回去
+    if (this.host && !this.host.isConnected) {
+      document.documentElement.append(this.host)
+      this.reposition()
+    }
   }
 
   private reposition(): void {
@@ -968,7 +979,9 @@ on(document, "keyup", clearStaleIcon)
 on(document, "click", clearStaleIcon)
 // 输入框早就有焦点（没触发 focusin）时，点一下或打字也能唤醒
 const wakeIfFocused = (): void => {
-  if (presendBusy || ui.iconState !== null) return
+  if (presendBusy) return
+  // 图标还挂在一个已经被网页换掉的输入框上：当作没有图标，重新找
+  if (ui.iconState !== null && (ui.iconState !== "idle" || ui.anchorEl?.isConnected)) return
   syncFocus()
   if (focusedEl) rest(focusedEl)
 }
