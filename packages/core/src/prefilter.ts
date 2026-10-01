@@ -27,7 +27,7 @@ const PERSON_WORDS = [
 
 // 小李 / 老王 / 阿强 这类称呼
 const NICKNAME = /[小老阿][一-龥]/
-const PERSON_EN = /\b(he|she|his|her|him|friend|boss|coworker|colleague|roommate|ex|girlfriend|boyfriend|wife|husband)\b/i
+const PERSON_EN = /\b(he|she|his|her|him|friends?|boss|coworkers?|co-workers?|colleagues?|roommates?|ex|girlfriend|boyfriend|gf|bf|wife|husband|mom|mum|dad|mother|father|sister|brother|sis|bro|son|daughter|kids?|cousin|aunt|uncle|grandma|grandpa|teacher|classmates?|neighbou?rs?|manager|client|customer|landlord|tenant|patient|someone)\b/i
 
 const EVENT_WORDS = [
   // 健康
@@ -46,6 +46,11 @@ const EVENT_WORDS = [
   "住在", "住址", "地址", "家在", "电话", "手机号", "身份证", "银行卡", "密码", "学校", "宿舍"
 ]
 
+// 英文敏感事件：前一组按词首匹配（覆盖 pregnant / pregnancy、divorced / divorcing 这类变形），
+// 后一组是容易撞上普通单词的短词（std / cop / gay …），要求整词匹配
+const EVENT_EN =
+  /\b(pregnan|miscarr|abortion|diagnos|cancer|tumou?r|hospital|surgery|rehab|overdos|depress|anxiety|therap|psychiatr|suicid|self[- ]harm|disabilit|passed away|divorc|cheat|affair|broke up|break ?up|dumped|lesbian|bisexual|transgender|came out|fired|laid off|layoff|expelled|suspended|debt|bankrupt|salary|paycheck|arrest|jail|prison|police|lawsuit|address|phone number|passport|password)|\b(hiv|std|aids|died|gay|trans|owes?|loan|cops?|sued|ssn|lives (at|on|in))\b/i
+
 const NUMBER_LIKE = /\d{5,}|\d+\s*(号|栋|幢|单元|室|楼|弄)/
 
 export function localGate(raw: string): GateDecision {
@@ -54,7 +59,7 @@ export function localGate(raw: string): GateDecision {
   if (TRIVIAL_REPLY.test(text)) return { check: false, reason: "trivial" }
   if ([...text].length >= LONG_TEXT_THRESHOLD) return { check: true, reason: "long" }
   if (NUMBER_LIKE.test(text)) return { check: true, reason: "number" }
-  if (EVENT_WORDS.some(w => text.includes(w))) return { check: true, reason: "event" }
+  if (EVENT_WORDS.some(w => text.includes(w)) || EVENT_EN.test(text)) return { check: true, reason: "event" }
   if (PERSON_WORDS.some(w => text.includes(w)) || NICKNAME.test(text) || PERSON_EN.test(text)) {
     return { check: true, reason: "person" }
   }

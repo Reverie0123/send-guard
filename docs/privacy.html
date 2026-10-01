@@ -10,13 +10,14 @@
 <main>
   <p class="back"><a href="./">← Send Guard</a></p>
   <h1>Send Guard 隐私政策</h1>
-  <p class="meta">生效日期：2026-09-25 · 适用版本：v0.3.0 及以后 · <a href="#en">English</a></p>
+  <p class="meta">最近更新：2026-10-01（适用 v0.6.3 及以后；首次生效 2026-09-25）· <a href="#en">English</a></p>
 
   <p>Send Guard 是一个浏览器扩展，在你发送消息之前检查内容是否涉及他人隐私，只在值得复核时提醒。Send Guard <strong>没有自己的服务器</strong>：扩展不会把任何数据发给开发者。</p>
 
   <h2>什么时候会处理你的消息</h2>
   <ul>
-    <li><strong>发送前检查（默认）</strong>：只在已适配的网站（目前是 Gmail 和 Discord）、你按下发送时检查。</li>
+    <li><strong>发送前检查（默认）</strong>：只在已适配的网站（目前是 Gmail、Outlook、QQ 邮箱、Discord、X 的发帖和私信）、你按下发送时检查。</li>
+    <li><strong>盾牌按钮</strong>：在其他你授权的网站上，点进输入框时角上会出现一个盾牌按钮，<strong>只有你点击它时</strong>才检查；不点不上传。可以在弹窗里按网站关闭。</li>
     <li><strong>手动检查</strong>：只在你点击扩展弹窗里的「检查当前输入框」时检查。</li>
     <li><strong>实时检查</strong>：默认关闭。只有你在弹窗里确认「未发送的草稿会在输入停止时上传」后才会开启。</li>
   </ul>
@@ -25,10 +26,10 @@
   <h2>上传什么、发给谁</h2>
   <p>需要检查时，扩展从你的浏览器<strong>直接</strong>把下列内容发送给<strong>你在弹窗里选择的检测服务</strong>，不经过任何其他服务器：</p>
   <ul>
-    <li>这条消息的文字（最多 1000 字）；</li>
+    <li>这条消息的文字（最多 1000 字；更长的消息只检查前 1000 字，并在发送前提示你）；</li>
     <li>你在弹窗里填写的「收件人默认上下文」和关系（例如「我的同事」），如果填写了；</li>
     <li>当前网站的域名（例如 discord.com）；</li>
-    <li>发送对象的粗粒度信息（可在弹窗中关闭）：私聊还是群聊、大致人数区间（如「约 11–50 人」）。<strong>不读取也不上传</strong>收件人的名字、邮箱或用户名。</li>
+    <li>发送对象的粗粒度信息（可在弹窗中关闭）：私聊、群聊还是公开发布，以及大致人数区间（如「约 11–50 人」）。<strong>不读取也不上传</strong>收件人的名字、邮箱或用户名。</li>
   </ul>
   <table>
     <tr><th>检测服务</th><th>接收方</th><th>该服务的隐私政策</th></tr>
@@ -40,8 +41,8 @@
 
   <h2>保存在你电脑上的数据</h2>
   <ul>
-    <li>设置（开关、触发模式、检测服务、收件人默认上下文、自定义敏感词、已启用的网站）；</li>
-    <li>各检测服务的 API key：保存在浏览器的扩展存储里，只由扩展后台读取，网页和页面脚本拿不到；</li>
+    <li>设置（开关、触发模式、检测服务、收件人默认上下文、自定义敏感词、已启用的网站、各网站是否显示盾牌按钮）；</li>
+    <li>各检测服务的 API key：以原文保存在本机浏览器的扩展存储里（chrome.storage.local，不随浏览器同步），只由扩展后台读取，网页和页面脚本拿不到；</li>
     <li>每月统计：检查次数和 token 数量。</li>
   </ul>
   <p><strong>不保存</strong>任何消息内容、检查结果原文或浏览记录，也不写日志。检查结果只在内存里短暂缓存，关闭页面即清除。卸载扩展会删除以上所有本地数据。</p>
@@ -49,7 +50,8 @@
   <h2>权限说明</h2>
   <ul>
     <li><code>storage</code>：保存上面列出的设置和统计。</li>
-    <li><code>activeTab</code>、<code>scripting</code>：在你授权的网站上加载检查脚本。</li>
+    <li><code>activeTab</code>：在弹窗里识别当前标签页是哪个网站，并对它执行「检查当前输入框」；</li>
+    <li><code>scripting</code>：在你授权的网站上加载检查脚本，撤销授权后注销。</li>
     <li>对 api.typesafe.ai、api.deepseek.com、openrouter.ai 的访问：向你选择的检测服务发送检查请求。</li>
     <li>其他网站（可选权限）：只有你在弹窗里点「在此网站启用」并在浏览器授权框里同意后，扩展才会在该网站工作；你随时可以在弹窗或浏览器设置里撤销，撤销后立即停止。</li>
   </ul>
@@ -67,14 +69,14 @@
   <hr>
 
   <h1 id="en">Send Guard Privacy Policy</h1>
-  <p class="meta">Effective 2026-09-25 · applies to v0.3.0 and later</p>
+  <p class="meta">Last updated 2026-10-01 (applies to v0.6.3 and later; first effective 2026-09-25)</p>
   <p>Send Guard is a browser extension that checks whether a message may disclose someone else's private information right before you send it. Send Guard has <strong>no server of its own</strong>; the extension never sends data to its developer.</p>
   <h2>When messages are processed</h2>
-  <p>Only when you press Send on a supported site (currently Gmail and Discord), when you click "Check current input" in the popup, or — only if you explicitly opt in — when you pause typing (real-time mode). Password fields, payment-card fields, login forms, trivial short replies and short messages that don't involve other people are skipped locally. Custom sensitive words are matched locally and never uploaded.</p>
+  <p>Only when you press Send on a supported site (currently Gmail, Outlook, QQ Mail, Discord, and X posts and direct messages), when you click the shield button that appears in a focused text box on other sites you have enabled (it can be turned off per site), when you click "Check current input" in the popup, or — only if you explicitly opt in — when you pause typing (real-time mode). Password fields, payment-card fields, login forms, trivial short replies and short messages that don't involve other people are skipped locally. Custom sensitive words are matched locally and never uploaded.</p>
   <h2>What is sent, and to whom</h2>
-  <p>The message text (up to 1,000 characters), the optional recipient context and relationship you typed in the popup, the site's domain, and — unless you turn it off — a coarse audience hint (direct message vs. group, and an approximate size range). Recipient names, email addresses and usernames are never read or sent. The data goes directly from your browser to the detection service you selected (TypeSafe <a href="https://typesafe.ai/legal/privacy-policy">privacy</a>, DeepSeek <a href="https://cdn.deepseek.com/policies/zh-CN/deepseek-privacy-policy.html">privacy</a>, or OpenRouter <a href="https://openrouter.ai/privacy">privacy</a>, routed only to providers that do not retain data), using your own API key.</p>
+  <p>The message text (up to 1,000 characters; for longer messages only the first 1,000 are checked and you are told before sending), the optional recipient context and relationship you typed in the popup, the site's domain, and — unless you turn it off — a coarse audience hint (direct message, group or public post, and an approximate size range). Recipient names, email addresses and usernames are never read or sent. The data goes directly from your browser to the detection service you selected (TypeSafe <a href="https://typesafe.ai/legal/privacy-policy">privacy</a>, DeepSeek <a href="https://cdn.deepseek.com/policies/zh-CN/deepseek-privacy-policy.html">privacy</a>, or OpenRouter <a href="https://openrouter.ai/privacy">privacy</a>, routed only to providers that do not retain data), using your own API key.</p>
   <h2>Stored locally</h2>
-  <p>Settings, your API keys (readable only by the extension's background script) and monthly counters (number of checks and tokens). No message content, results or browsing history are stored or logged. Uninstalling the extension removes all of it.</p>
+  <p>Settings, your API keys (stored as plain text in the browser's local extension storage, not synced, and readable only by the extension's background script) and monthly counters (number of checks and tokens). No message content, results or browsing history are stored or logged. Uninstalling the extension removes all of it.</p>
   <h2>We do not</h2>
   <p>collect, sell or share personal data; run ads, analytics or third-party trackers; or use generative AI to write or rewrite your messages.</p>
   <h2>Contact</h2>

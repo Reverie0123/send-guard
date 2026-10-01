@@ -102,5 +102,17 @@
   {"id":"P07","expect":"none","rc":"","audience":{"kind":"public"},"text":"Shipped v2 of my side project today. Took 6 months but it finally works."},
   {"id":"P08","expect":"none","rc":"","audience":{"kind":"public"},"text":"恭喜中国女排夺冠！朱婷这一场太稳了"},
   {"id":"P09","expect":"none","rc":"","audience":{"kind":"public"},"text":"Big thanks to my teammate Alex for the amazing talk at the conference today!"},
-  {"id":"P10","expect":"none","rc":"","audience":{"kind":"public"},"text":"这家店的拉面真的好吃，推荐给住在海淀的朋友"}
+  {"id":"P10","expect":"none","rc":"","audience":{"kind":"public"},"text":"这家店的拉面真的好吃，推荐给住在海淀的朋友"},
+  {"id": "EN01", "expect": "warn", "rc": "coworkers", "text": "FYI Jake from accounting just got diagnosed with bipolar disorder, he's on leave"},
+  {"id": "EN02", "expect": "warn", "rc": "group chat", "text": "Amy is pregnant but she hasn't told her boyfriend yet, don't say anything"},
+  {"id": "EN03", "expect": "warn", "rc": "friends", "text": "Mark owes like $40k in credit card debt and his wife has no idea"},
+  {"id": "EN04", "expect": "warn", "rc": "team channel", "text": "heads up, Priya got fired yesterday for failing the drug test"},
+  {"id": "EN05", "expect": "warn", "rc": "group chat", "text": "Sarah's ex lives at 42 Oak Street, apartment 3B, if anyone wants to stop by"},
+  {"id": "EN06", "expect": "warn", "rc": "classmates", "text": "congrats to our 'genius' Kevin for finally passing calc on his third try lol"},
+  {"id": "EN07", "expect": "none", "rc": "friends", "text": "I finally finished my thesis draft, going to sleep for a week"},
+  {"id": "EN08", "expect": "none", "rc": "coworkers", "text": "Can we move the sync to 3pm? I have a dentist appointment"},
+  {"id": "EN09", "expect": "none", "rc": "team channel", "text": "Huge thanks to Alex for shipping the new search page today!"},
+  {"id": "EN10", "expect": "none", "rc": "group chat", "text": "Who's bringing drinks to the bbq on Saturday?"},
+  {"id": "EN11", "expect": "none", "rc": "friends", "text": "I've been feeling kind of anxious about my exam next week"},
+  {"id": "EN12", "expect": "none", "rc": "family", "text": "Mom, I landed safely, will call you after dinner"}
 ]

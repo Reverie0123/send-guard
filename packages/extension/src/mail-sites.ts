@@ -83,7 +83,7 @@ export const outlook: MailSpec = {
 // ---- X（x.com 发帖 / 回复 / 引用） ----
 // 正文：Draft.js 编辑框 [data-testid="tweetTextarea_N"]（串推时有多个）；
 // 发送：首页和回复框内嵌的 tweetButtonInline、弹窗里的 tweetButton；没有内容时按钮带 aria-disabled
-// 发帖默认公开，受众按「公开发布」处理。私信（x.com/i/chat）是另一套界面，暂未适配。
+// 发帖默认公开，受众按「公开发布」处理。私信（x.com/i/chat）是另一套界面，适配在 content.ts 的 xDmDetect。
 const X_SEND = '[data-testid="tweetButton"], [data-testid="tweetButtonInline"]'
 
 export const xPost: MailSpec = {

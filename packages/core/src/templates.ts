@@ -102,6 +102,7 @@ export function getRiskSummary(result: RiskInput, locale: Locale = "zh"): string
  * 连「恭喜张伟升职」都会触发；而 reviewWorthiness 能干净地分开两组——
  * 该提醒的全部 ≥ 2.5，不该提醒 / 多余提醒的全部 ≤ 2.0。所以只用 reviewWorthiness 触发。
  * 另用 20 条未参与调参的样本验证：该提醒的最低 2.2，不该提醒的最高 0.4；阈值取两组之间的 2.1（漏报比多提醒更糟）。
+ * 之后样本扩充到 111 条（含 12 条英文），2026-10-01 回归：该提醒最低 2.2，不该提醒最高 1.2，阈值不变。
  */
 export const LLM_WARN_REVIEW = 2.1
 export const LLM_RED_REVIEW = 2.8
@@ -184,5 +185,3 @@ export function describeAudience(a: Audience | undefined, locale: Locale = "zh")
   return t.audienceGroup(t.sizes[a.size ?? "unknown"]!)
 }
 
-/** @deprecated 用 describeAudience(a, "zh") */
-export const describeAudienceZh = (a: Audience | undefined) => describeAudience(a, "zh")

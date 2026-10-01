@@ -4,3 +4,4 @@ packages/extension/dist/
 .DS_Store
 release-artifacts/
 store/screenshots/03-popup.html
+store/screenshots/03-popup-en.html

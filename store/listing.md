@@ -95,7 +95,7 @@ Privacy policy: https://reverie0123.github.io/send-guard/privacy.html
 | 权限 | 用途 |
 |------|------|
 | `storage` | 保存用户设置、各检测服务的 API key 和每月统计（检查次数、token 数）。不保存消息内容。 |
-| `activeTab` | 用户在弹窗中点击「检查当前输入框」时，访问当前标签页的输入框内容。 |
+| `activeTab` | 在弹窗里识别当前标签页的网站（显示「已启用 / 未启用」），并让「检查当前输入框」作用于当前标签页。 |
 | `scripting` | 在用户授权的网站上注册 / 注入检查脚本；撤销授权后注销。 |
 | 主机权限 `https://api.typesafe.ai/*`、`https://api.deepseek.com/*`、`https://openrouter.ai/*` | 向用户选择的检测服务发送检查请求。 |
 | 可选主机权限 `<all_urls>` | 仅在用户对某个网站点击「在此网站启用」并在浏览器授权框中同意后，才在该网站运行。不会自动申请。 |

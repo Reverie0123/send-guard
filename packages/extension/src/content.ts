@@ -817,9 +817,10 @@ function installPresend(adapter: SiteAdapter): void {
   for (const type of adapter.events) on(window, type, handler)
 }
 
-async function runPresend(attempt: SendAttempt): Promise<void> {
+async function runPresend(attempt: SendAttempt, retries = 2): Promise<void> {
   presendBusy = true
   const { editor } = attempt
+  const checkedText = readText(editor).trim()
   let outcome: Outcome | null
   try {
     ui.hidePanel()
@@ -830,15 +831,25 @@ async function runPresend(attempt: SendAttempt): Promise<void> {
   }
   if (!outcome || !alive) return
 
+  // 检查期间文字又被改过：结果对应的是旧文字，不能拿它放行，按新文字重查
+  if (readText(editor).trim() !== checkedText) {
+    if (retries > 0) return runPresend(attempt, retries - 1)
+    rest(editor)
+    return
+  }
+
   const state = iconStateOf(outcome)
-  if (!state) {
+  // 长消息只检查了前一部分：即使没发现问题也停一下，让用户知道后面没检查
+  const partial = outcome.kind === "result" && outcome.truncated
+  if (!state && !partial) {
     // 无风险 / 未达上传条件：直接执行发送，不打扰用户
     ui.hideAll()
     attempt.send()
     rest(editor)
     return
   }
-  ui.showIcon(editor, state)
+  if (state) ui.showIcon(editor, state)
+  else ui.hideIcon()
   ui.showPanel(editor, outcome, {
     kind: "presend",
     onSend: () => {

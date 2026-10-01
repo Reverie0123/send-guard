@@ -5,7 +5,6 @@ import {
   buildState,
   categoryLabel,
   describeAudience,
-  describeAudienceZh,
   isAudience,
   pickLocale,
   getAlertLevel,
@@ -34,6 +33,16 @@ describe("localGate 本地预筛", () => {
   it("短句提到他人 / 敏感事件 / 号码要检查", () => {
     for (const t of ["我朋友小李今天在学校被打了", "小张确诊了", "我同桌有艾滋", "她是同性恋", "老王被开除了", "住3栋2单元"]) {
       assert.equal(localGate(t).check, true, t)
+    }
+  })
+  it("英文短句提到他人 / 敏感事件要检查", () => {
+    for (const t of ["Amy is pregnant", "Bob got fired", "my boss is in rehab", "Tom owes me $500", "Li is in hospital", "she broke up w him", "Jake's divorced"]) {
+      assert.equal(localGate(t).check, true, t)
+    }
+  })
+  it("英文普通短句不上传，普通单词不误撞", () => {
+    for (const t of ["see you at 3pm", "running late sorry", "send the copy", "standard plan", "translate this"]) {
+      assert.deepEqual(localGate(t), { check: false, reason: "short" }, t)
     }
   })
   it("≥ 20 字一律检查", () => {
@@ -135,8 +144,8 @@ describe("发送对象（粗粒度）", () => {
     assert.match(buildState({ text: "hi", audience: { kind: "public" } }), /Audience: public post/)
   })
   it("面板文案", () => {
-    assert.equal(describeAudienceZh(undefined), "未识别（用默认上下文）")
-    assert.match(describeAudienceZh({ kind: "group", size: "large" }), /50 人以上/)
+    assert.equal(describeAudience(undefined, "zh"), "未识别（用默认上下文）")
+    assert.match(describeAudience({ kind: "group", size: "large" }, "zh"), /50 人以上/)
   })
 })
 

@@ -412,7 +412,9 @@ chrome.runtime.onMessage.addListener((msg: ContentRequest | PopupRequest, sender
     case "removeSite":
       return reply(chrome.permissions.remove({ origins: [msg.origin] }))
     case "setSiteWake":
-      if (typeof msg.host !== "string" || !/^[a-z0-9.-]{1,253}$/i.test(msg.host) || typeof msg.on !== "boolean") return false
+      if (typeof msg.host !== "string" || !/^[a-z0-9.:[\]-]{1,253}$/i.test(msg.host) || typeof msg.on !== "boolean") {
+        return reply(Promise.resolve(false))
+      }
       return reply(setSiteWake(msg.host.toLowerCase(), msg.on).then(() => true))
     default:
       return false
