@@ -26,6 +26,38 @@ English:
 中文：
 
 ```
+Send Guard 在你按下发送键之前做一次隐私检查。
+
+很多隐私泄露不是故意的：在群里随口一句「小李住院了」「老王被裁了」，就把别人不愿公开的事告诉了一群人。Send Guard 会在发送前判断：
+• 这条消息是否透露了别人的私事；
+• 收件人能否据此认出或找到具体的人；
+• 涉及哪类敏感信息（健康、财务、感情、位置、职业）；
+• 发到群里、私聊还是公开发布，风险是否超出了应有的范围。
+
+只在值得复核时弹出提醒，你可以「仍然发送」或「我再看看」，它从不阻止你发送。
+
+支持的网站
+• Gmail、Outlook、QQ 邮箱、Discord、X（发帖和私信）：按发送时自动检查（均已在真实网页验证）
+• 其他网站：授权后，点进输入框时角上会出现一个盾牌按钮，点一下才检查；可以按网站开关
+
+隐私设计
+• 没有自己的服务器，不收集任何数据
+• 默认只在按发送或点击盾牌按钮时检查；客套话、不涉及他人的短句在本地放行，不上传
+• 自定义敏感词只在本地匹配
+• 不读取收件人的名字、邮箱、用户名；只可选地使用「私聊 / 群聊 / 公开 + 人数区间」
+• API key 只保存在本机，网页拿不到
+• 检查失败显示「检查未完成」，绝不误报为安全
+
+检测服务
+使用你自己的 API key：DeepSeek（推荐）、TypeSafe Jev 或 OpenRouter。
+
+在线试玩（不用安装）：https://reverie0123.github.io/send-guard/demo/
+开源：https://github.com/Reverie0123/send-guard
+```
+
+English:
+
+```
 Send Guard runs a privacy check right before you send a message.
 
 Many privacy leaks are accidental: a casual "Li is in the hospital" in a group chat tells everyone something that wasn't yours to share. Before sending, Send Guard estimates whether the message reveals someone else's private information, whether the recipients could identify that person, which sensitive category is involved (health, finances, relationships, location, work), and whether a group or public audience makes it riskier.
@@ -50,26 +82,6 @@ Bring your own API key: DeepSeek (recommended), TypeSafe Jev or OpenRouter.
 Try it without installing: https://reverie0123.github.io/send-guard/demo/
 Open source: https://github.com/Reverie0123/send-guard
 Privacy policy: https://reverie0123.github.io/send-guard/privacy.html
-```
-
-English:
-
-```
-Send Guard runs a privacy check right before you send a message.
-
-Many privacy leaks are accidental — a casual "Li is in the hospital" in a group chat tells everyone something that wasn't yours to share. Before sending, Send Guard estimates whether the message reveals someone else's private information, whether the recipients could identify that person, which sensitive category is involved, and whether a group audience makes it riskier.
-
-It only warns when a second look is worthwhile. You can always "Send anyway" — it never blocks you.
-
-• Gmail, Outlook, QQ Mail and Discord: automatic check on Send (verified on the live sites)
-• Other sites: manual check after you grant access
-• No server of its own; collects no data
-• Short trivial messages and custom sensitive words are handled locally, never uploaded
-• Never reads recipient names, emails or usernames
-• API keys stay on your device; failures show "check incomplete", never "safe"
-
-Bring your own API key: DeepSeek (recommended), TypeSafe Jev or OpenRouter.
-Open source: https://github.com/Reverie0123/send-guard
 ```
 
 ## 单一用途说明（Chrome 要求）
